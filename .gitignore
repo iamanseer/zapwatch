@@ -1,0 +1,36 @@
+## Ignore Visual Studio temporary files
+.vs/
+.vscode/
+.idea/
+
+## Ignore build results
+bin/
+obj/
+
+## Ignore user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Ignore NuGet packages
+*.nupkg
+*.snupkg
+.nuget/
+
+## Ignore app-specific
+appsettings.Development.json
+appsettings.Production.json
+.env
+.env.local
+user-secrets/
+
+## Ignore IDE files
+*.csproj.user
+*.vbproj.user
+*.vbproj.*.user
+
+## OS
+.DS_Store
+Thumbs.db

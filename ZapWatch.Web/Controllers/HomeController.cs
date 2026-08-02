@@ -12,12 +12,32 @@ public class HomeController(IConfiguration config) : Controller
         return View(PlanCatalog.All(config));
     }
 
+    [Route("pricing")]
+    public IActionResult Pricing()
+    {
+        return View(PlanCatalog.All(config));
+    }
+
+    [Route("how-it-works")]
+    public IActionResult HowItWorks()
+    {
+        return View();
+    }
+
+    [Route("onboarding")]
+    public IActionResult Onboarding()
+    {
+        return View();
+    }
+
+    [Route("privacy")]
     public IActionResult Privacy()
     {
         return View();
     }
 
-    public IActionResult Onboarding()
+    [Route("about")]
+    public IActionResult About()
     {
         return View();
     }

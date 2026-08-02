@@ -1,0 +1,7 @@
+@model IReadOnlyList<ZapWatch.Web.Services.PlanDefinition>
+@{
+    ViewData["Title"] = "Pricing";
+    ViewData["Description"] = "Flat monthly ZapWatch plans by automation count. No usage surprises.";
+}
+
+@await Html.PartialAsync("_PricingSection", Model)

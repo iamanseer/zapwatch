@@ -49,6 +49,12 @@
     </div>
 </div>
 
+@{
+    var pwModel = ViewBag.ChangePasswordModel as ZapWatch.Web.Models.Account.ChangePasswordViewModel
+        ?? new ZapWatch.Web.Models.Account.ChangePasswordViewModel();
+}
+@await Html.PartialAsync("_ChangePasswordForm", pwModel)
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

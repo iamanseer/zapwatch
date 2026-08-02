@@ -67,6 +67,9 @@ builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
 builder.Services.AddHttpClient<ISmsSender, TwilioSmsSender>();
 builder.Services.AddScoped<IAlertNotifier, CompositeAlertNotifier>();
 
+builder.Services.Configure<RazorpayOptions>(builder.Configuration.GetSection("Razorpay"));
+builder.Services.AddHttpClient<RazorpayClient>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

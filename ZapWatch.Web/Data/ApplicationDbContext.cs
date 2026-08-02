@@ -11,6 +11,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Automation> Automations { get; set; } = null!;
     public DbSet<PingEvent> PingEvents { get; set; } = null!;
     public DbSet<AlertEvent> AlertEvents { get; set; } = null!;
+    public DbSet<Subscription> Subscriptions { get; set; } = null!;
     public DbSet<Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -37,6 +38,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasOne(a => a.Automation)
             .WithMany(a => a.AlertEvents)
             .HasForeignKey(a => a.AutomationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Subscription>()
+            .HasIndex(s => s.RazorpaySubscriptionId)
+            .IsUnique();
+
+        builder.Entity<Subscription>()
+            .HasOne(s => s.User)
+            .WithMany()
+            .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

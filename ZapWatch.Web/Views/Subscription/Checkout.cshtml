@@ -1,0 +1,45 @@
+@model ZapWatch.Web.Models.Subscriptions.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="zw-form-card mx-auto">
+    <p class="zw-eyebrow mb-1 text-center">Checkout</p>
+    <h1 class="mb-4 text-center">@Model.PlanName &mdash; &#8377;@Model.PriceInRupees/month</h1>
+
+    <div class="zw-card p-4 text-center">
+        <p class="zw-muted mb-4">Opening Razorpay's secure checkout&hellip;</p>
+        <button type="button" id="zwPayNow" class="btn btn-primary w-100">Pay now</button>
+        <p class="zw-muted mt-3 mb-0" style="font-size:0.85rem;">
+            Your plan activates automatically once payment is confirmed &mdash; usually within a
+            few seconds. You'll see it reflected on <a asp-controller="Subscription" asp-action="Index">this page</a>.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        (function () {
+            var options = {
+                key: "@Model.RazorpayKeyId",
+                subscription_id: "@Model.RazorpaySubscriptionId",
+                name: "ZapWatch",
+                description: "@Model.PlanName plan",
+                prefill: { email: "@Model.UserEmail" },
+                theme: { color: "#ff4a00" },
+                handler: function () {
+                    window.location.href = "@Url.Action("Index", "Subscription")";
+                }
+            };
+            var rzp = new Razorpay(options);
+
+            document.getElementById("zwPayNow").addEventListener("click", function () {
+                rzp.open();
+            });
+
+            // Open automatically on load; the button is the fallback if the popup gets blocked.
+            rzp.open();
+        })();
+    </script>
+}

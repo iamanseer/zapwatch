@@ -68,6 +68,9 @@ jobs:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_FROM_PHONE_NUMBER: ${{ secrets.TWILIO_FROM_PHONE_NUMBER }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
         run: |
           $path = "./publish/appsettings.json"
           $json = Get-Content $path -Raw | ConvertFrom-Json
@@ -76,6 +79,9 @@ jobs:
           $json.Twilio.AccountSid = $env:TWILIO_ACCOUNT_SID
           $json.Twilio.AuthToken = $env:TWILIO_AUTH_TOKEN
           $json.Twilio.FromPhoneNumber = $env:TWILIO_FROM_PHONE_NUMBER
+          $json.Razorpay.KeyId = $env:RAZORPAY_KEY_ID
+          $json.Razorpay.KeySecret = $env:RAZORPAY_KEY_SECRET
+          if ($env:RAZORPAY_WEBHOOK_SECRET) { $json.Razorpay.WebhookSecret = $env:RAZORPAY_WEBHOOK_SECRET }
           $json | ConvertTo-Json -Depth 10 | Set-Content $path
 
       - name: Deploy via MSDeploy

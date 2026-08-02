@@ -1,0 +1,36 @@
+@model ZapWatch.Web.Models.Subscriptions.SubscriptionIndexViewModel
+@{
+    ViewData["Title"] = "Billing";
+}
+
+<p class="zw-eyebrow mb-1">Billing</p>
+<h1 class="mb-4">Choose a plan</h1>
+
+@if (Model.Current is not null)
+{
+    var statusClass = Model.Current.Status == ZapWatch.Web.Models.SubscriptionStatus.Active ? "zw-status--ok"
+        : Model.Current.Status == ZapWatch.Web.Models.SubscriptionStatus.Created ? "zw-status--waiting"
+        : "zw-status--overdue";
+    <div class="zw-card p-4 mb-4">
+        <p class="zw-eyebrow mb-1">Current plan</p>
+        <p class="mb-2"><strong>@Model.Current.Plan</strong> &mdash; up to @Model.Current.AutomationLimit automations</p>
+        <span class="zw-status @statusClass"><span class="zw-status-dot"></span>@Model.Current.Status</span>
+    </div>
+}
+
+<div class="row g-3">
+    @foreach (var plan in Model.Plans)
+    {
+        <div class="col-md-4">
+            <div class="zw-card p-4 h-100 d-flex flex-column">
+                <p class="zw-eyebrow mb-1">@plan.Name</p>
+                <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
+                <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
+                <form asp-action="Create" method="post" class="mt-auto">
+                    <input type="hidden" name="plan" value="@plan.Name" />
+                    <button type="submit" class="btn btn-primary w-100">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

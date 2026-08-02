@@ -1,10 +1,11 @@
 @model ZapWatch.Web.Models.Subscriptions.SubscriptionIndexViewModel
 @{
     ViewData["Title"] = "Billing";
+    var isActive = Model.Current?.Status == ZapWatch.Web.Models.SubscriptionStatus.Active;
 }
 
 <p class="zw-eyebrow mb-1">Billing</p>
-<h1 class="mb-4">Choose a plan</h1>
+<h1 class="mb-4">@(isActive ? "Your plan" : "Choose a plan")</h1>
 
 @if (TempData["LimitReached"] != null)
 {
@@ -13,31 +14,71 @@
     </div>
 }
 
-@if (Model.Current is not null)
+@if (isActive)
 {
-    var statusClass = Model.Current.Status == ZapWatch.Web.Models.SubscriptionStatus.Active ? "zw-status--ok"
-        : Model.Current.Status == ZapWatch.Web.Models.SubscriptionStatus.Created ? "zw-status--waiting"
-        : "zw-status--overdue";
     <div class="zw-card p-4 mb-4">
-        <p class="zw-eyebrow mb-1">Current plan</p>
-        <p class="mb-2"><strong>@Model.Current.Plan</strong> &mdash; up to @Model.Current.AutomationLimit automations</p>
-        <span class="zw-status @statusClass"><span class="zw-status-dot"></span>@Model.Current.Status</span>
+        <p class="zw-eyebrow mb-1">@Model.Current!.Plan</p>
+        <p class="mb-2">
+            <span style="font-size:1.8rem;font-weight:800;">&#8377;@(Model.CurrentPlanDefinition?.PriceInRupees.ToString() ?? "—")</span>
+            <span class="zw-muted">/month</span>
+            <span class="zw-muted"> &mdash; up to @Model.Current.AutomationLimit automations</span>
+        </p>
+        <span class="zw-status zw-status--ok"><span class="zw-status-dot"></span>Active</span>
     </div>
-}
 
-<div class="row g-3">
-    @foreach (var plan in Model.Plans)
+    <details>
+        <summary class="zw-muted" style="cursor:pointer;font-size:0.9rem;">Change plan</summary>
+        <div class="row g-3 mt-1">
+            @foreach (var plan in Model.Plans)
+            {
+                <div class="col-md-4">
+                    <div class="zw-card p-4 h-100 d-flex flex-column">
+                        <p class="zw-eyebrow mb-1">@plan.Name</p>
+                        <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
+                        <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
+                        <form asp-action="Create" method="post" class="mt-auto">
+                            <input type="hidden" name="plan" value="@plan.Name" />
+                            <button type="submit" class="btn btn-outline-secondary w-100"
+                                    disabled="@(plan.Name == Model.Current.Plan ? "disabled" : null)">
+                                @(plan.Name == Model.Current.Plan ? "Current plan" : "Switch to this plan")
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </details>
+}
+else
+{
+    @if (Model.Current is not null)
     {
-        <div class="col-md-4">
-            <div class="zw-card p-4 h-100 d-flex flex-column">
-                <p class="zw-eyebrow mb-1">@plan.Name</p>
-                <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
-                <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
-                <form asp-action="Create" method="post" class="mt-auto">
-                    <input type="hidden" name="plan" value="@plan.Name" />
-                    <button type="submit" class="btn btn-primary w-100">Subscribe</button>
-                </form>
-            </div>
+        var isPending = Model.Current.Status == ZapWatch.Web.Models.SubscriptionStatus.Created;
+        var statusClass = isPending ? "zw-status--waiting" : "zw-status--overdue";
+        var statusNote = isPending
+            ? $"Your {Model.Current.Plan} subscription is being set up — this can take a few seconds after payment. Refresh in a moment, or pick a plan below to try again."
+            : $"Your {Model.Current.Plan} subscription is {Model.Current.Status} — pick a plan below to reactivate monitoring.";
+        <div class="zw-card p-4 mb-4">
+            <p class="zw-eyebrow mb-1">@Model.Current.Plan</p>
+            <p class="zw-muted mb-2" style="font-size:0.9rem;">@statusNote</p>
+            <span class="zw-status @statusClass"><span class="zw-status-dot"></span>@Model.Current.Status</span>
         </div>
     }
-</div>
+
+    <div class="row g-3">
+        @foreach (var plan in Model.Plans)
+        {
+            <div class="col-md-4">
+                <div class="zw-card p-4 h-100 d-flex flex-column">
+                    <p class="zw-eyebrow mb-1">@plan.Name</p>
+                    <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
+                    <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
+                    <form asp-action="Create" method="post" class="mt-auto">
+                        <input type="hidden" name="plan" value="@plan.Name" />
+                        <button type="submit" class="btn btn-primary w-100">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

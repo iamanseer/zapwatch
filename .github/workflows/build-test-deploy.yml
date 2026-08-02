@@ -1,0 +1,105 @@
+name: Build, test, and deploy
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zapwatch-production
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ZapWatch.slnx
+
+      - name: Build
+        run: dotnet build ZapWatch.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ZapWatch.slnx --configuration Release --no-build
+
+  deploy:
+    name: Deploy to MonsterASP
+    needs: build
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: windows-latest
+    environment:
+      name: production
+      url: https://zap-watch.runasp.net
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ZapWatch.slnx
+
+      - name: Publish
+        run: dotnet publish ZapWatch.Web/ZapWatch.Web.csproj --configuration Release --output ./publish
+
+      - name: Deploy via MSDeploy
+        shell: pwsh
+        env:
+          WD_USER: ${{ secrets.WEBDEPLOY_USERNAME }}
+          WD_PASS: ${{ secrets.WEBDEPLOY_PASSWORD }}
+          WD_URL: ${{ secrets.WEBDEPLOY_PUBLISH_URL }}
+          WD_SITE: ${{ secrets.WEBDEPLOY_SITE_NAME }}
+        run: |
+          $msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          if (-not (Test-Path $msdeploy)) {
+            $msdeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          }
+
+          $rawUrl = $env:WD_URL.Trim()
+          if ($rawUrl -match 'https?://([^/]+)') {
+              $hostAndPort = $matches[1]
+          } else {
+              $hostAndPort = $rawUrl.Split('/')[0]
+          }
+
+          if (-not ($hostAndPort -like "*:*")) {
+              $hostAndPort = "$hostAndPort:8172"
+          }
+
+          $computerName = "https://${hostAndPort}/msdeploy.axd?site=$env:WD_SITE"
+
+          Write-Host "Deploying to $computerName..."
+
+          $sourcePath = Join-Path (Get-Location).Path "publish"
+          $destSpec = "contentPath=$env:WD_SITE,ComputerName=$computerName,UserName=$env:WD_USER,Password=$env:WD_PASS,AuthType=Basic"
+
+          $msArgs = @(
+            "-verb:sync",
+            "-source:contentPath=$sourcePath",
+            "-dest:$destSpec",
+            "-enableRule:DoNotDeleteRule",
+            "-enableRule:AppOffline",
+            "-allowUntrusted"
+          )
+
+          & $msdeploy @msArgs
+
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

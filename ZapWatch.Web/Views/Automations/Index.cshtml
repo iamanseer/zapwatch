@@ -62,16 +62,16 @@ else
                             statusClass = "zw-status--ok";
                             statusLabel = "Live";
                         }
-                        <tr>
+                        <tr data-automation-id="@item.Id">
                             <td>
-                                <span class="zw-status @statusClass">
-                                    <span class="zw-status-dot"></span>@statusLabel
+                                <span class="zw-status @statusClass" data-role="status">
+                                    <span class="zw-status-dot"></span><span data-role="status-label">@statusLabel</span>
                                 </span>
                             </td>
                             <td class="fw-semibold">@item.Name</td>
                             <td class="zw-muted">@item.ExpectedFrequencyMinutes min</td>
                             <td class="zw-muted">@item.GracePeriodMinutes min</td>
-                            <td class="zw-muted">@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                            <td class="zw-muted" data-role="last-seen">@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
                             <td>
                                 @{
                                     var lastAlert = item.AlertEvents.FirstOrDefault();
@@ -109,4 +109,9 @@ else
             </table>
         </div>
     </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+    <script src="~/js/automations.js" asp-append-version="true"></script>
 }

@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ZapWatch.Web.Data;
+using ZapWatch.Web.Hubs;
 using ZapWatch.Web.Models;
 
 namespace ZapWatch.Web.Controllers;
 
 [AllowAnonymous]
 [Route("ping")]
-public class PingController(ApplicationDbContext db) : Controller
+public class PingController(ApplicationDbContext db, IHubContext<AutomationStatusHub> hub) : Controller
 {
     [HttpGet("{token}")]
     [HttpPost("{token}")]
@@ -42,6 +44,8 @@ public class PingController(ApplicationDbContext db) : Controller
         }
 
         await db.SaveChangesAsync();
+
+        await AutomationStatusBroadcast.SendAsync(hub, automation);
 
         return Ok();
     }

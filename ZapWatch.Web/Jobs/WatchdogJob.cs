@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ZapWatch.Web.Data;
+using ZapWatch.Web.Hubs;
 using ZapWatch.Web.Models;
 using ZapWatch.Web.Services;
 
 namespace ZapWatch.Web.Jobs;
 
-public class WatchdogJob(ApplicationDbContext db, IAlertNotifier alertNotifier)
+public class WatchdogJob(ApplicationDbContext db, IAlertNotifier alertNotifier, IHubContext<AutomationStatusHub> hub)
 {
     public async Task ScanForOverdueAutomations()
     {
@@ -15,6 +17,8 @@ public class WatchdogJob(ApplicationDbContext db, IAlertNotifier alertNotifier)
             .Include(a => a.User)
             .Where(a => a.Status != AutomationStatus.Paused)
             .ToListAsync();
+
+        var justFlipped = new List<Automation>();
 
         foreach (var automation in candidates)
         {
@@ -46,8 +50,15 @@ public class WatchdogJob(ApplicationDbContext db, IAlertNotifier alertNotifier)
                 Channel = result.SucceededChannels,
                 FailureDetails = result.FailureDetails
             });
+
+            justFlipped.Add(automation);
         }
 
         await db.SaveChangesAsync();
+
+        foreach (var automation in justFlipped)
+        {
+            await AutomationStatusBroadcast.SendAsync(hub, automation);
+        }
     }
 }

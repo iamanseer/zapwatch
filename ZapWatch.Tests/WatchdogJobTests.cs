@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ZapWatch.Tests.Fakes;
 using ZapWatch.Web.Data;
 using ZapWatch.Web.Jobs;
 using ZapWatch.Web.Models;
@@ -62,7 +63,7 @@ public class WatchdogJobTests
         await db.SaveChangesAsync();
 
         var notifier = new FakeAlertNotifier();
-        var job = new WatchdogJob(db, notifier);
+        var job = new WatchdogJob(db, notifier, new FakeHubContext());
 
         await job.ScanForOverdueAutomations();
 
@@ -85,7 +86,7 @@ public class WatchdogJobTests
         await db.SaveChangesAsync();
 
         var notifier = new FakeAlertNotifier();
-        var job = new WatchdogJob(db, notifier);
+        var job = new WatchdogJob(db, notifier, new FakeHubContext());
 
         // Simulate the recurring job firing three times in a row while nothing has changed.
         await job.ScanForOverdueAutomations();
@@ -107,7 +108,7 @@ public class WatchdogJobTests
         await db.SaveChangesAsync();
 
         var notifier = new FakeAlertNotifier();
-        var job = new WatchdogJob(db, notifier);
+        var job = new WatchdogJob(db, notifier, new FakeHubContext());
 
         await job.ScanForOverdueAutomations();
 
@@ -136,7 +137,7 @@ public class WatchdogJobTests
         await db.SaveChangesAsync();
 
         var notifier = new FakeAlertNotifier();
-        var job = new WatchdogJob(db, notifier);
+        var job = new WatchdogJob(db, notifier, new FakeHubContext());
 
         await job.ScanForOverdueAutomations();
 
@@ -157,7 +158,7 @@ public class WatchdogJobTests
         await db.SaveChangesAsync();
 
         var notifier = new FakeAlertNotifier();
-        var job = new WatchdogJob(db, notifier);
+        var job = new WatchdogJob(db, notifier, new FakeHubContext());
 
         await job.ScanForOverdueAutomations();
 
@@ -177,7 +178,7 @@ public class WatchdogJobTests
         await db.SaveChangesAsync();
 
         var notifier = new FakeAlertNotifier();
-        var job = new WatchdogJob(db, notifier);
+        var job = new WatchdogJob(db, notifier, new FakeHubContext());
 
         await job.ScanForOverdueAutomations();
 

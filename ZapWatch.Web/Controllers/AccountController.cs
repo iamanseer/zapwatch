@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -86,6 +87,87 @@ public class AccountController(
         return View(model);
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+    {
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+        var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        return Challenge(properties, provider);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+    {
+        if (remoteError != null)
+        {
+            TempData["ExternalLoginError"] = "Something went wrong signing in with Google. Please try again.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var info = await signInManager.GetExternalLoginInfoAsync();
+        if (info is null)
+        {
+            TempData["ExternalLoginError"] = "Something went wrong signing in with Google. Please try again.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        // Already linked to an account from a previous sign-in - just sign in.
+        var signInResult = await signInManager.ExternalLoginSignInAsync(
+            info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+        if (signInResult.Succeeded)
+        {
+            return RedirectToLocal(returnUrl);
+        }
+        if (signInResult.IsLockedOut)
+        {
+            TempData["ExternalLoginError"] = "This account has been locked out. Try again later.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrEmpty(email))
+        {
+            TempData["ExternalLoginError"] = "Google didn't share an email address, so we can't sign you in.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var user = await userManager.FindByEmailAsync(email);
+        var isNewUser = user is null;
+        if (user is null)
+        {
+            // Google has already verified this email, unlike a local signup's address.
+            user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
+            var createResult = await userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+            {
+                TempData["ExternalLoginError"] = "Couldn't create your account. Please try again.";
+                return RedirectToAction(nameof(Login));
+            }
+        }
+
+        // Link this Google identity to the (new or pre-existing local) account by email.
+        var addLoginResult = await userManager.AddLoginAsync(user, info);
+        if (!addLoginResult.Succeeded)
+        {
+            TempData["ExternalLoginError"] = "Couldn't link your Google account. Please try again.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        await signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+
+        // SMS alerts need a phone number, which Google sign-in never supplies - nudge new
+        // accounts to add one instead of silently leaving that half of the alert path dark.
+        if (isNewUser && string.IsNullOrEmpty(user.PhoneNumber))
+        {
+            TempData["WelcomeNeedsPhone"] = "true";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        return RedirectToLocal(returnUrl);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
@@ -103,6 +185,9 @@ public class AccountController(
         {
             return NotFound();
         }
+
+        var logins = await userManager.GetLoginsAsync(user);
+        ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
 
         return View(new ProfileViewModel
         {
@@ -126,6 +211,8 @@ public class AccountController(
 
         if (!ModelState.IsValid)
         {
+            var logins = await userManager.GetLoginsAsync(user);
+            ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
             return View(model);
         }
 

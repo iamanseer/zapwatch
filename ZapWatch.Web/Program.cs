@@ -46,6 +46,17 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/Login";
 });
 
+// Empty ClientId/ClientSecret is fine at startup - OAuthOptions only validates them lazily,
+// the first time someone actually hits /signin-google. Real values come from GitHub Actions
+// secrets at deploy time (see build-test-deploy.yml), same pattern as Resend/Twilio/Razorpay.
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+        options.CallbackPath = "/signin-google";
+    });
+
 builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()

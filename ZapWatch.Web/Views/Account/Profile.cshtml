@@ -12,12 +12,20 @@
         {
             <div class="alert alert-success">Saved.</div>
         }
+        @if (TempData["WelcomeNeedsPhone"] != null)
+        {
+            <div class="alert alert-warning">Welcome! Add a phone number below so SMS alerts have somewhere to go.</div>
+        }
 
         <form asp-action="Profile" method="post">
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
             <div class="form-group mb-3">
                 <label class="form-label">Email</label>
                 <input value="@Model.Email" class="form-control" disabled />
+                @if (ViewBag.IsGoogleLinked == true)
+                {
+                    <div class="form-text">Signed in with Google.</div>
+                }
             </div>
             <div class="form-group mb-4">
                 <label asp-for="PhoneNumber" class="form-label"></label>

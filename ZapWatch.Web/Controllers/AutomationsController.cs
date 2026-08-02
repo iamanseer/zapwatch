@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ZapWatch.Web.Data;
 using ZapWatch.Web.Models;
 using ZapWatch.Web.Models.Automations;
+using ZapWatch.Web.Services;
 
 namespace ZapWatch.Web.Controllers;
 
@@ -23,12 +24,20 @@ public class AutomationsController(
             .OrderBy(a => a.Name)
             .ToListAsync();
 
+        ViewData["AutomationLimit"] = await SubscriptionLimits.GetEffectiveLimitAsync(db, CurrentUserId);
+
         return View(automations);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        if (await IsAtAutomationLimitAsync())
+        {
+            TempData["LimitReached"] = true;
+            return RedirectToAction("Index", "Subscription");
+        }
+
         return View(new AutomationFormViewModel());
     }
 
@@ -36,6 +45,12 @@ public class AutomationsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AutomationFormViewModel model)
     {
+        if (await IsAtAutomationLimitAsync())
+        {
+            TempData["LimitReached"] = true;
+            return RedirectToAction("Index", "Subscription");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -55,6 +70,13 @@ public class AutomationsController(
         await db.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<bool> IsAtAutomationLimitAsync()
+    {
+        var currentCount = await db.Automations.CountAsync(a => a.UserId == CurrentUserId);
+        var limit = await SubscriptionLimits.GetEffectiveLimitAsync(db, CurrentUserId);
+        return currentCount >= limit;
     }
 
     [HttpGet]

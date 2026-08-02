@@ -6,6 +6,13 @@
 <p class="zw-eyebrow mb-1">Billing</p>
 <h1 class="mb-4">Choose a plan</h1>
 
+@if (TempData["LimitReached"] != null)
+{
+    <div class="alert alert-warning">
+        You've reached your automation limit on your current plan. Choose a plan below to add more.
+    </div>
+}
+
 @if (Model.Current is not null)
 {
     var statusClass = Model.Current.Status == ZapWatch.Web.Models.SubscriptionStatus.Active ? "zw-status--ok"

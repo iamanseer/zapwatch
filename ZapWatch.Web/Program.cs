@@ -1,9 +1,11 @@
 using Hangfire;
+using Hangfire.Dashboard;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ZapWatch.Web.Data;
+using ZapWatch.Web.Infrastructure;
 using ZapWatch.Web.Hubs;
 using ZapWatch.Web.Jobs;
 using ZapWatch.Web.Models;
@@ -86,7 +88,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHangfireDashboard("/hangfire");
+var adminEmail = builder.Configuration["AdminEmail"]
+    ?? throw new InvalidOperationException("AdminEmail not configured.");
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireDashboardAuthFilter(adminEmail)]
+});
 
 app.MapStaticAssets();
 

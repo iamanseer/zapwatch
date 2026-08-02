@@ -37,13 +37,14 @@ public class WatchdogJob(ApplicationDbContext db, IAlertNotifier alertNotifier)
 
             automation.Status = AutomationStatus.Overdue;
 
-            var channel = await alertNotifier.NotifyAsync(automation);
+            var result = await alertNotifier.NotifyAsync(automation);
 
             db.AlertEvents.Add(new AlertEvent
             {
                 AutomationId = automation.Id,
                 TriggeredAt = now,
-                Channel = channel
+                Channel = result.SucceededChannels,
+                FailureDetails = result.FailureDetails
             });
         }
 

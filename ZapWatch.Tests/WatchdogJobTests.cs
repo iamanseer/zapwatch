@@ -10,10 +10,10 @@ public class FakeAlertNotifier : IAlertNotifier
 {
     public int CallCount { get; private set; }
 
-    public Task<string> NotifyAsync(Automation automation, CancellationToken ct = default)
+    public Task<AlertNotifyResult> NotifyAsync(Automation automation, CancellationToken ct = default)
     {
         CallCount++;
-        return Task.FromResult("email,sms");
+        return Task.FromResult(new AlertNotifyResult("email,sms", null));
     }
 }
 

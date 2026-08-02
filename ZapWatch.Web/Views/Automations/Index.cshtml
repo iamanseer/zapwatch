@@ -54,11 +54,15 @@ else
                         }
                         else if (string.IsNullOrEmpty(lastAlert.Channel))
                         {
-                            <span class="text-danger" title="Both email and SMS failed">Send failed</span>
+                            <span class="text-danger">Send failed</span>
                         }
                         else
                         {
                             <span class="text-success">Sent: @lastAlert.Channel</span>
+                        }
+                        @if (!string.IsNullOrEmpty(lastAlert?.FailureDetails))
+                        {
+                            <br /><span class="text-danger small">@lastAlert.FailureDetails</span>
                         }
                     </td>
                     <td><code class="small">@pingUrl</code></td>

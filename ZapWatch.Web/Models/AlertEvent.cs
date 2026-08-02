@@ -12,4 +12,8 @@ public class AlertEvent
 
     /// <summary>Comma-separated list of channels successfully notified for this episode, e.g. "email,sms".</summary>
     public string Channel { get; set; } = "";
+
+    /// <summary>Error details for any channel that failed, e.g. "sms: Twilio send failed (400): ...".
+    /// Null if every attempted channel succeeded.</summary>
+    public string? FailureDetails { get; set; }
 }

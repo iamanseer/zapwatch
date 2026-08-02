@@ -1,15 +1,20 @@
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using ZapWatch.Web.Models;
 using ZapWatch.Web.Models.Account;
+using ZapWatch.Web.Services;
 
 namespace ZapWatch.Web.Controllers;
 
 public class AccountController(
     UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager) : Controller
+    SignInManager<ApplicationUser> signInManager,
+    IEmailSender emailSender,
+    ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
     [AllowAnonymous]
@@ -38,6 +43,7 @@ public class AccountController(
 
         if (result.Succeeded)
         {
+            await SendConfirmationEmailAsync(user);
             await signInManager.SignInAsync(user, isPersistent: false);
             return RedirectToLocal(returnUrl);
         }
@@ -85,6 +91,46 @@ public class AccountController(
         }
 
         return View(model);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> ConfirmEmail(string? userId, string? token)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+        var result = await userManager.ConfirmEmailAsync(user, decodedToken);
+
+        TempData[result.Succeeded ? "EmailConfirmed" : "ExternalLoginError"] = result.Succeeded
+            ? "true"
+            : "That verification link is invalid or has expired. Request a new one from your account page.";
+
+        return RedirectToAction(User.Identity?.IsAuthenticated == true ? nameof(Profile) : nameof(Login));
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResendConfirmation()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is not null && !user.EmailConfirmed)
+        {
+            await SendConfirmationEmailAsync(user);
+        }
+
+        TempData["ConfirmationResent"] = "true";
+        return RedirectToAction(nameof(Profile));
     }
 
     [HttpGet]
@@ -231,5 +277,30 @@ public class AccountController(
         }
 
         return RedirectToAction("Index", "Automations");
+    }
+
+    // A failed send here shouldn't block signup/login itself - the account still works, the
+    // owner just won't be verified yet. They can hit "Resend" from their account page. Logged
+    // so a run of these is actually visible somewhere, per TRD's fail-visibly-not-silently rule.
+    private async Task SendConfirmationEmailAsync(ApplicationUser user)
+    {
+        try
+        {
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var confirmUrl = Url.Action(nameof(ConfirmEmail), "Account",
+                new { userId = user.Id, token = encodedToken }, Request.Scheme)!;
+
+            await emailSender.SendAsync(
+                user.Email!,
+                "Confirm your ZapWatch email",
+                $"<p>One click to confirm <strong>{user.Email}</strong> for ZapWatch alerts:</p>"
+                + $"<p><a href=\"{confirmUrl}\">Confirm my email</a></p>"
+                + "<p>If you didn't sign up for ZapWatch, you can ignore this email.</p>");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to send confirmation email to {Email}", user.Email);
+        }
     }
 }

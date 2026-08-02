@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -89,6 +91,19 @@
             </div>
         </nav>
     </header>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser is not null && !currentUser.EmailConfirmed)
+        {
+            <div class="alert alert-warning text-center mb-0 rounded-0">
+                Verify your email so alerts have somewhere to land &mdash; we sent a link to @currentUser.Email.
+                <form asp-controller="Account" asp-action="ResendConfirmation" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">Resend</button>
+                </form>
+            </div>
+        }
+    }
     <div class="container zw-page">
         <main role="main">
             @RenderBody()

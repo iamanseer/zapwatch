@@ -16,6 +16,18 @@
         {
             <div class="alert alert-warning">Welcome! Add a phone number below so SMS alerts have somewhere to go.</div>
         }
+        @if (TempData["EmailConfirmed"] != null)
+        {
+            <div class="alert alert-success">Email confirmed.</div>
+        }
+        @if (TempData["ConfirmationResent"] != null)
+        {
+            <div class="alert alert-success">Verification email resent.</div>
+        }
+        @if (TempData["ExternalLoginError"] is string confirmError)
+        {
+            <div class="alert alert-warning">@confirmError</div>
+        }
 
         <form asp-action="Profile" method="post">
             <div asp-validation-summary="All" class="text-danger mb-3"></div>

@@ -345,6 +345,7 @@ public class AccountController(
 
         var logins = await userManager.GetLoginsAsync(user);
         ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+        ViewBag.HasPassword = await userManager.HasPasswordAsync(user);
 
         return View(new ProfileViewModel
         {
@@ -370,6 +371,7 @@ public class AccountController(
         {
             var logins = await userManager.GetLoginsAsync(user);
             ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+            ViewBag.HasPassword = await userManager.HasPasswordAsync(user);
             return View(model);
         }
 
@@ -377,6 +379,68 @@ public class AccountController(
         await userManager.UpdateAsync(user);
 
         TempData["ProfileSaved"] = "true";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        var hasPassword = await userManager.HasPasswordAsync(user);
+
+        if (hasPassword && string.IsNullOrEmpty(model.CurrentPassword))
+        {
+            ModelState.AddModelError(nameof(model.CurrentPassword), "Current password is required.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var logins = await userManager.GetLoginsAsync(user);
+            ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+            ViewBag.HasPassword = hasPassword;
+            ViewBag.ChangePasswordModel = model;
+            return View(nameof(Profile), new ProfileViewModel
+            {
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber ?? ""
+            });
+        }
+
+        // A Google-only account (no password yet) uses AddPasswordAsync - there's no current
+        // password to verify. Everyone else goes through ChangePasswordAsync, which does.
+        var result = hasPassword
+            ? await userManager.ChangePasswordAsync(user, model.CurrentPassword!, model.NewPassword)
+            : await userManager.AddPasswordAsync(user, model.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            var logins = await userManager.GetLoginsAsync(user);
+            ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+            ViewBag.HasPassword = hasPassword;
+            ViewBag.ChangePasswordModel = model;
+            return View(nameof(Profile), new ProfileViewModel
+            {
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber ?? ""
+            });
+        }
+
+        // ChangePasswordAsync/AddPasswordAsync bump the security stamp - refresh the current
+        // cookie now so this session isn't silently signed out on the next stamp check.
+        await signInManager.RefreshSignInAsync(user);
+
+        TempData["PasswordChanged"] = hasPassword ? "changed" : "set";
         return RedirectToAction(nameof(Profile));
     }
 

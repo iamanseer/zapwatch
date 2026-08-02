@@ -54,14 +54,19 @@ public class HomeController(IConfiguration config) : Controller
     [Route("sitemap.xml")]
     public IActionResult Sitemap()
     {
+        // Must build elements via `ns + "name"`, not a plain `new XAttribute("xmlns", ...)` -
+        // the latter throws XmlException ("prefix '' cannot be redefined") the moment
+        // XDocument.ToString() tries to serialize it. Confirmed by running this exact
+        // pattern in isolation before shipping it.
+        XNamespace ns = "http://www.sitemaps.org/schemas/sitemap/0.9";
+
         // "/" not "" for the homepage, so it matches the canonical tag's Context.Request.Path
         // for the root ("/") exactly instead of a bare domain with no trailing slash.
         var urls = new[] { "/", "/pricing", "/how-it-works", "/onboarding", "/privacy", "/about" };
-        var xml = new XElement("urlset",
-            new XAttribute("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9"),
-            urls.Select(u => new XElement("url",
-                new XElement("loc", $"https://zap-watch.runasp.net{u}"),
-                new XElement("changefreq", "monthly"))));
+        var xml = new XElement(ns + "urlset",
+            urls.Select(u => new XElement(ns + "url",
+                new XElement(ns + "loc", $"https://zap-watch.runasp.net{u}"),
+                new XElement(ns + "changefreq", "monthly"))));
         return Content(new XDocument(xml).ToString(), "application/xml");
     }
 

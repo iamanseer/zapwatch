@@ -125,3 +125,25 @@
         </p>
     </div>
 </section>
+
+@{
+    var startingPlan = Model.MinBy(p => p.PriceInRupees);
+}
+@if (startingPlan is not null)
+{
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "SoftwareApplication",
+      "name": "ZapWatch",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "Monitoring for Zapier automations that catches silent failures before clients notice.",
+      "offers": {
+        "@@type": "Offer",
+        "price": "@startingPlan.PriceInRupees.ToString("0.00")",
+        "priceCurrency": "INR"
+      }
+    }
+    </script>
+}

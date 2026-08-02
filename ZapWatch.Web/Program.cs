@@ -7,6 +7,7 @@ using ZapWatch.Web.Data;
 using ZapWatch.Web.Hubs;
 using ZapWatch.Web.Jobs;
 using ZapWatch.Web.Models;
+using ZapWatch.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,8 @@ builder.Services.AddHangfire(config => config
 
 builder.Services.AddHangfireServer();
 
+builder.Services.AddScoped<IAlertNotifier, NoOpAlertNotifier>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -90,10 +93,10 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Register the smoke test recurring job
-RecurringJob.AddOrUpdate<SmokeTestJob>(
-    "smoke-test-tick",
-    job => job.Ping(),
-    "* * * * *");
+// Watchdog: scans for overdue automations every 2 minutes
+RecurringJob.AddOrUpdate<WatchdogJob>(
+    "watchdog-scan",
+    job => job.ScanForOverdueAutomations(),
+    "*/2 * * * *");
 
 app.Run();

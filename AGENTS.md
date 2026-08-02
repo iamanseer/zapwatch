@@ -48,6 +48,12 @@ by design, not idea-specific.
 - Checks: does this slice actually match the PRD (no silent scope drift), is the code
   maintainable enough for a solo builder to touch again in 3 months, any security/cost red flags
   (especially around Razorpay payment handling and SMS/email send costs).
+- For any slice touching a view or `wwwroot`: checks it against `TRD.md`'s Frontend design system
+  section — reuses the existing `zw-*` tokens/components instead of inventing new colors,
+  buttons, or card styles; keeps status color reserved for automation status; doesn't add
+  animation beyond the one documented signature. This is a real veto reason, not a nitpick — a
+  one-off style is how a solo-maintained app ends up with three different "card" looks in six
+  months.
 - Has veto power to send a slice back to Engineer — but must give a specific reason, not a style
   preference.
 - Does NOT re-litigate product decisions already settled in the PRD — that's Orchestrator/Anseer's

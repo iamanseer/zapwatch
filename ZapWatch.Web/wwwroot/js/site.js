@@ -1,4 +1,21 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+// Copy-to-clipboard for ping URLs on the automations dashboard.
+document.addEventListener("click", function (event) {
+    var button = event.target.closest("[data-copy-target]");
+    if (!button) {
+        return;
+    }
 
-// Write your JavaScript code.
+    var wrapper = button.closest("[data-ping-url]");
+    var value = wrapper ? wrapper.getAttribute("data-ping-url") : null;
+    if (!value) {
+        return;
+    }
+
+    navigator.clipboard.writeText(value).then(function () {
+        var original = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(function () {
+            button.textContent = original;
+        }, 1200);
+    });
+});

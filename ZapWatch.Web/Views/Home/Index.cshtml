@@ -1,8 +1,42 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "ZapWatch";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="zw-hero">
+    <p class="zw-eyebrow mb-3">Silent-failure monitoring for Zapier</p>
+    <h1 class="mb-3">Know the second a client automation goes quiet.</h1>
+    <p class="lead mb-4">
+        Zaps don't error out when they break — they just stop. ZapWatch watches for the ping
+        that should follow every run and alerts you by email and SMS the moment one goes
+        overdue, so you catch it before your client does.
+    </p>
+    <div class="d-flex flex-wrap gap-2">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Automations" asp-action="Index" class="btn btn-primary">Go to your automations</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign up</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Log in</a>
+        }
+    </div>
+</div>
+
+<div class="zw-flow">
+    <div class="zw-flow-step">
+        <span class="zw-flow-num">STEP 1</span>
+        <h3>Register the automation</h3>
+        <p>Name it, set how often it should run and how much grace to allow before it counts as overdue.</p>
+    </div>
+    <div class="zw-flow-step">
+        <span class="zw-flow-num">STEP 2</span>
+        <h3>Point a ping at it</h3>
+        <p>Add a Webhooks by Zapier step to the end of the Zap, pointed at the unique ping URL ZapWatch gives you.</p>
+    </div>
+    <div class="zw-flow-step">
+        <span class="zw-flow-num">STEP 3</span>
+        <h3>Get alerted if it stops</h3>
+        <p>Miss a window and you'll get an email + SMS right away. The next successful ping clears it automatically.</p>
+    </div>
 </div>

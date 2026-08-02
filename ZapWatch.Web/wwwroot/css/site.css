@@ -1,5 +1,92 @@
+/* ==========================================================================
+   ZapWatch — "Night Watch" theme
+   A watch-station panel: an ink-dark field where the only saturated color
+   is a status lamp. Brass/amber is the operator's accent (actions, links,
+   brand); status color is reserved strictly for signal state so it stays
+   trustworthy as a warning, not decoration.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../fonts/manrope-variable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-variable.woff2") format("woff2");
+}
+
+:root {
+  /* Ink scale — base to raised surfaces */
+  --zw-ink-950: #0b0d12;
+  --zw-ink-900: #12151d;
+  --zw-ink-800: #171b24;
+  --zw-ink-700: #1e232e;
+  --zw-ink-600: #262c38;
+  --zw-ink-500: #333b49;
+  --zw-line: #262c38;
+  --zw-line-strong: #333b49;
+
+  /* Text */
+  --zw-text-1: #edeff4;
+  --zw-text-2: #9aa3b2;
+  --zw-text-3: #626b7a;
+
+  /* Brass signal-lamp — brand accent, never used for status */
+  --zw-lamp: #e3a542;
+  --zw-lamp-strong: #f2b65b;
+  --zw-lamp-dim: #b9852f;
+  --zw-lamp-wash: rgba(227, 165, 66, 0.13);
+
+  /* Status lamps — the only place saturated color signals meaning */
+  --zw-ok: #34c78a;
+  --zw-ok-wash: rgba(52, 199, 138, 0.14);
+  --zw-overdue: #f1555d;
+  --zw-overdue-wash: rgba(241, 85, 93, 0.15);
+  --zw-waiting: #6e93d6;
+  --zw-waiting-wash: rgba(110, 147, 214, 0.14);
+  --zw-paused: #7a8494;
+  --zw-paused-wash: rgba(122, 132, 148, 0.14);
+
+  /* Type */
+  --zw-font-ui: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --zw-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --zw-radius-sm: 6px;
+  --zw-radius-md: 10px;
+  --zw-radius-lg: 16px;
+  --zw-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.6);
+
+  /* Bootstrap variable overrides — keep Bootstrap's grid/utilities/JS, replace its palette */
+  color-scheme: dark;
+  --bs-body-bg: var(--zw-ink-950);
+  --bs-body-color: var(--zw-text-1);
+  --bs-body-font-family: var(--zw-font-ui);
+  --bs-border-color: var(--zw-line);
+  --bs-secondary-color: var(--zw-text-2);
+  --bs-tertiary-bg: var(--zw-ink-800);
+  --bs-primary: var(--zw-lamp);
+  --bs-primary-rgb: 227, 165, 66;
+  --bs-link-color: var(--zw-lamp-strong);
+  --bs-link-hover-color: var(--zw-lamp);
+  --bs-link-color-rgb: 242, 182, 91;
+  --bs-emphasis-color: var(--zw-text-1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html {
-  font-size: 14px;
+  font-size: 15px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +95,566 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  background: var(--zw-ink-950);
+  background-image:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(227, 165, 66, 0.06), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(110, 147, 214, 0.05), transparent 55%);
+  background-attachment: fixed;
+  color: var(--zw-text-1);
+  font-family: var(--zw-font-ui);
+  margin-bottom: 76px;
+  -webkit-font-smoothing: antialiased;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--zw-font-ui);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--zw-text-1);
+}
+
+a {
+  color: var(--zw-lamp-strong);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--zw-lamp);
+  text-decoration: underline;
+}
+
+code, kbd, samp, pre, .zw-mono {
+  font-family: var(--zw-font-mono);
+}
+
+::selection {
+  background: var(--zw-lamp-wash);
+  color: var(--zw-text-1);
+}
+
+.btn:focus-visible, .btn:active:focus-visible,
+.form-control:focus-visible, .form-check-input:focus-visible,
+a:focus-visible, button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--zw-ink-950), 0 0 0 4px var(--zw-lamp);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Header / nav                                                           */
+/* ---------------------------------------------------------------------- */
+
+.zw-header {
+  background: rgba(11, 13, 18, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--zw-line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.zw-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--zw-font-ui);
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--zw-text-1) !important;
+}
+.zw-brand:hover {
+  text-decoration: none;
+  color: var(--zw-text-1) !important;
+}
+.zw-brand .zw-brand-watch {
+  color: var(--zw-lamp-strong);
+}
+.zw-brand .zw-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--zw-ok);
+  box-shadow: 0 0 0 3px var(--zw-ok-wash);
+  flex: none;
+}
+
+.zw-nav-link {
+  color: var(--zw-text-2) !important;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.85rem !important;
+  border-radius: var(--zw-radius-sm);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.zw-nav-link:hover {
+  color: var(--zw-text-1) !important;
+  background: var(--zw-ink-700);
+  text-decoration: none;
+}
+.zw-nav-link.active {
+  color: var(--zw-text-1) !important;
+  background: var(--zw-ink-700);
+}
+
+.zw-nav-user {
+  color: var(--zw-text-3);
+  font-size: 0.85rem;
+  font-family: var(--zw-font-mono);
+}
+
+.navbar-toggler {
+  border-color: var(--zw-line) !important;
+}
+.navbar-toggler-icon {
+  filter: invert(1) grayscale(1) brightness(1.6);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.btn {
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: var(--zw-radius-sm);
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary {
+  background: var(--zw-lamp);
+  border-color: var(--zw-lamp);
+  color: #1a1204;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--zw-lamp-strong);
+  border-color: var(--zw-lamp-strong);
+  color: #1a1204;
+}
+.btn-primary:active {
+  background: var(--zw-lamp-dim) !important;
+  border-color: var(--zw-lamp-dim) !important;
+}
+
+.btn-outline-secondary {
+  color: var(--zw-text-2);
+  border-color: var(--zw-line-strong);
+  background: transparent;
+}
+.btn-outline-secondary:hover {
+  color: var(--zw-text-1);
+  border-color: var(--zw-text-2);
+  background: var(--zw-ink-700);
+}
+
+.btn-outline-danger {
+  color: var(--zw-overdue);
+  border-color: rgba(241, 85, 93, 0.4);
+  background: transparent;
+}
+.btn-outline-danger:hover {
+  color: #1a1204;
+  background: var(--zw-overdue);
+  border-color: var(--zw-overdue);
+}
+
+.btn-danger {
+  background: var(--zw-overdue);
+  border-color: var(--zw-overdue);
+}
+.btn-danger:hover {
+  background: #d8434b;
+  border-color: #d8434b;
+}
+
+.btn-link {
+  color: var(--zw-text-2);
+  font-weight: 600;
+}
+.btn-link:hover {
+  color: var(--zw-text-1);
+}
+
+.btn-sm {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Surfaces / cards                                                       */
+/* ---------------------------------------------------------------------- */
+
+.zw-card {
+  background: var(--zw-ink-800);
+  border: 1px solid var(--zw-line);
+  border-radius: var(--zw-radius-lg);
+  box-shadow: var(--zw-shadow-card);
+}
+
+.zw-page {
+  padding-top: 2.25rem;
+  padding-bottom: 3rem;
+}
+
+.zw-eyebrow {
+  font-family: var(--zw-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--zw-lamp-strong);
+  font-weight: 600;
+}
+
+.zw-muted {
+  color: var(--zw-text-2);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status lamp — dot + label, the one animated signature                  */
+/* ---------------------------------------------------------------------- */
+
+.zw-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.zw-status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.zw-status-dot::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0;
+}
+
+.zw-status--ok {
+  color: var(--zw-ok);
+  background: var(--zw-ok-wash);
+}
+.zw-status--ok .zw-status-dot {
+  background: var(--zw-ok);
+}
+.zw-status--ok .zw-status-dot::after {
+  animation: zw-pulse-calm 2.6s ease-out infinite;
+}
+
+.zw-status--overdue {
+  color: var(--zw-overdue);
+  background: var(--zw-overdue-wash);
+}
+.zw-status--overdue .zw-status-dot {
+  background: var(--zw-overdue);
+}
+.zw-status--overdue .zw-status-dot::after {
+  animation: zw-pulse-alert 1.15s ease-out infinite;
+}
+
+.zw-status--waiting {
+  color: var(--zw-waiting);
+  background: var(--zw-waiting-wash);
+}
+.zw-status--waiting .zw-status-dot {
+  background: var(--zw-waiting);
+}
+.zw-status--waiting .zw-status-dot::after {
+  animation: zw-pulse-calm 2.6s ease-out infinite;
+}
+
+.zw-status--paused {
+  color: var(--zw-paused);
+  background: var(--zw-paused-wash);
+}
+.zw-status--paused .zw-status-dot {
+  background: var(--zw-paused);
+}
+
+@keyframes zw-pulse-calm {
+  0% { transform: scale(0.7); opacity: 0.55; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+
+@keyframes zw-pulse-alert {
+  0% { transform: scale(0.7); opacity: 0.8; }
+  100% { transform: scale(2.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zw-status-dot::after {
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tables                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.zw-table-wrap {
+  background: var(--zw-ink-800);
+  border: 1px solid var(--zw-line);
+  border-radius: var(--zw-radius-lg);
+  overflow: hidden;
+}
+
+.table.zw-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--zw-text-1);
+  margin-bottom: 0;
+}
+
+.zw-table thead th {
+  font-family: var(--zw-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--zw-text-3);
+  font-weight: 500;
+  border-bottom: 1px solid var(--zw-line);
+  padding: 0.85rem 1rem;
+  background: var(--zw-ink-700);
+}
+
+.zw-table tbody td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--zw-line);
+  vertical-align: middle;
+}
+
+.zw-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.zw-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.zw-table tbody tr:hover {
+  background: var(--zw-ink-700);
+}
+
+.zw-ping-url {
+  font-family: var(--zw-font-mono);
+  font-size: 0.78rem;
+  color: var(--zw-text-2);
+  background: var(--zw-ink-900);
+  border: 1px solid var(--zw-line);
+  border-radius: var(--zw-radius-sm);
+  padding: 0.3rem 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+}
+
+.zw-ping-url code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--zw-text-2);
+}
+
+.zw-copy-btn {
+  border: none;
+  background: transparent;
+  color: var(--zw-text-3);
+  font-family: var(--zw-font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  flex: none;
+}
+.zw-copy-btn:hover {
+  color: var(--zw-lamp-strong);
+  background: var(--zw-lamp-wash);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Forms                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.86rem;
+  color: var(--zw-text-1);
+  margin-bottom: 0.4rem;
+}
+
+.form-control, .form-select {
+  background: var(--zw-ink-900);
+  border: 1px solid var(--zw-line-strong);
+  color: var(--zw-text-1);
+  border-radius: var(--zw-radius-sm);
+  padding: 0.55rem 0.8rem;
+}
+.form-control::placeholder {
+  color: var(--zw-text-3);
+}
+.form-control:focus, .form-select:focus {
+  background: var(--zw-ink-900);
+  border-color: var(--zw-lamp);
+  color: var(--zw-text-1);
+  box-shadow: 0 0 0 3px var(--zw-lamp-wash);
+}
+.form-check-input {
+  background-color: var(--zw-ink-900);
+  border-color: var(--zw-line-strong);
+}
+.form-check-input:checked {
+  background-color: var(--zw-lamp);
+  border-color: var(--zw-lamp);
+}
+.form-check-input:focus {
+  box-shadow: 0 0 0 3px var(--zw-lamp-wash);
+}
+.form-text {
+  color: var(--zw-text-3);
+  font-size: 0.82rem;
+}
+
+.text-danger {
+  color: var(--zw-overdue) !important;
+}
+
+.zw-form-card {
+  max-width: 460px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Hero + how-it-works (Home)                                             */
+/* ---------------------------------------------------------------------- */
+
+.zw-hero {
+  padding: 4.5rem 0 3.5rem;
+}
+
+.zw-hero h1 {
+  font-size: clamp(2.1rem, 4.5vw, 3.1rem);
+  line-height: 1.12;
+  max-width: 14ch;
+}
+
+.zw-hero p.lead {
+  color: var(--zw-text-2);
+  font-size: 1.1rem;
+  max-width: 46ch;
+  line-height: 1.6;
+}
+
+.zw-flow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .zw-flow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.zw-flow-step {
+  background: var(--zw-ink-800);
+  border: 1px solid var(--zw-line);
+  border-radius: var(--zw-radius-lg);
+  padding: 1.35rem 1.4rem;
+  position: relative;
+}
+
+.zw-flow-step .zw-flow-num {
+  font-family: var(--zw-font-mono);
+  font-size: 0.75rem;
+  color: var(--zw-lamp-strong);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.zw-flow-step h3 {
+  font-size: 1.05rem;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.zw-flow-step p {
+  color: var(--zw-text-2);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Empty state                                                             */
+/* ---------------------------------------------------------------------- */
+
+.zw-empty {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  border: 1px dashed var(--zw-line-strong);
+  border-radius: var(--zw-radius-lg);
+  background: var(--zw-ink-800);
+}
+.zw-empty p {
+  color: var(--zw-text-2);
+  max-width: 42ch;
+  margin: 0.5rem auto 1.25rem;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Alerts / validation                                                     */
+/* ---------------------------------------------------------------------- */
+
+.validation-summary-errors ul {
+  margin-bottom: 0;
+  padding-left: 1.1rem;
+}
+
+.zw-alert-fail {
+  color: var(--zw-overdue);
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Footer                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.zw-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid var(--zw-line);
+  color: var(--zw-text-3);
+  font-size: 0.85rem;
+  line-height: 56px;
+  background: var(--zw-ink-950);
+}
+.zw-footer a {
+  color: var(--zw-text-2);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Misc                                                                     */
+/* ---------------------------------------------------------------------- */
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+  color: var(--zw-text-3);
   text-align: end;
 }
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
 }

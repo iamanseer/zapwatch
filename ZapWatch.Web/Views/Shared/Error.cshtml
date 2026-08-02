@@ -3,23 +3,28 @@
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="zw-status zw-status--overdue mb-3">
+    <span class="zw-status-dot"></span>Something went wrong
+</div>
+<h1 class="mb-3">An error occurred while processing your request.</h1>
 
 @if (Model.ShowRequestId)
 {
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    <p class="zw-muted">
+        <strong class="text-body">Request ID:</strong> <code>@Model.RequestId</code>
     </p>
 }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+<div class="zw-card p-4 mt-4">
+    <h3 class="mb-3">Development mode</h3>
+    <p class="zw-muted">
+        Swapping to <strong class="text-body">Development</strong> environment will display more detailed information about the error that occurred.
+    </p>
+    <p class="zw-muted mb-0">
+        <strong class="text-body">The Development environment shouldn't be enabled for deployed applications.</strong>
+        It can result in displaying sensitive information from exceptions to end users.
+        For local debugging, enable the <strong class="text-body">Development</strong> environment by setting the
+        <strong class="text-body">ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong class="text-body">Development</strong>
+        and restarting the app.
+    </p>
+</div>

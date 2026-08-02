@@ -5,7 +5,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ZapWatch</title>
+    <title>@(ViewData["Title"] != null ? $"{ViewData["Title"]} — ZapWatch" : "ZapWatch — Know before your client does")</title>
+    <meta name="description" content="@(ViewData["Description"] ?? "ZapWatch pings your client Zapier automations and alerts you the moment one goes silently quiet - before your client notices.")" />
+    <link rel="canonical" href="@($"https://zap-watch.runasp.net{Context.Request.Path}")" />
+    <meta name="robots" content="@(ViewData["Robots"] ?? "index, follow")" />
     <meta name="theme-color" content="#ffffff" />
     <script>
         // Set before first paint so there's no flash of the wrong theme.

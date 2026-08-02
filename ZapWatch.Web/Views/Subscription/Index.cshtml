@@ -1,6 +1,7 @@
 @model ZapWatch.Web.Models.Subscriptions.SubscriptionIndexViewModel
 @{
     ViewData["Title"] = "Billing";
+    ViewData["Robots"] = "noindex, nofollow";
     var isActive = Model.Current?.Status == ZapWatch.Web.Models.SubscriptionStatus.Active;
 }
 

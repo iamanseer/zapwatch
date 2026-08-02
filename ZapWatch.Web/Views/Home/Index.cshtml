@@ -1,6 +1,8 @@
 @model IReadOnlyList<ZapWatch.Web.Services.PlanDefinition>
 @{
-    ViewData["Title"] = "ZapWatch — Know before your client does";
+    // No ViewData["Title"] here on purpose - _Layout.cshtml's own default title IS this
+    // page's full title already; setting it here too would double up as "X — ZapWatch — ZapWatch".
+    ViewData["Description"] = "ZapWatch pings your client Zapier automations and alerts you by email + SMS the moment one goes silently quiet - before your client notices.";
     var isAuthed = User.Identity?.IsAuthenticated == true;
 }
 

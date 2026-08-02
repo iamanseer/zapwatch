@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /Automations
+Disallow: /Subscription
+Disallow: /Account/Profile
+Disallow: /Account/ChangePassword
+Disallow: /ping/
+Disallow: /hangfire
+
+Sitemap: https://zap-watch.runasp.net/sitemap.xml

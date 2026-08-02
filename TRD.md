@@ -88,21 +88,65 @@ SignalR hub to that automation owner's connected browser, so the dashboard updat
 without a refresh. A Razorpay webhook — another thin controller action in the same app — flips a
 Subscription's status, which gates whether an account's automations are actively watched.
 
-## 5. What's explicitly deferred to post-v1
+## 5. Frontend design system
+Implemented in full across every existing view (branch `worktree-frontend-theme`, PR #1) —
+binding for any new screen, not just a visual reference. "Night Watch": ZapWatch's job is sitting
+quietly and watching for a signal that should arrive on schedule, so the UI reads like a
+watch-station panel — an ink-dark field where the only saturated color is a status lamp.
+- **Ownership:** all theming lives in `wwwroot/css/site.css` — one file, CSS custom properties
+  (`--zw-*` tokens) plus component classes prefixed `zw-`. `Views/Shared/_Layout.cshtml.css`
+  (Razor CSS isolation) is deliberately left empty; don't put theme rules there, they'll fight
+  load order with `site.css`.
+- **Bootstrap stays** — this reskins Bootstrap 5 via `--bs-*` variable overrides in `:root`
+  (`--bs-body-bg`, `--bs-primary`, etc.), it does not replace it. New views should keep using
+  Bootstrap's grid/utilities/JS per the stack decision above; only reach for a new `zw-*` class
+  when Bootstrap has no equivalent (status pills, the ping-URL/copy affordance, the table shell).
+- **Color rule — status color is reserved.** `--zw-ok` (green), `--zw-overdue` (red),
+  `--zw-waiting` (blue), `--zw-paused` (gray) exist *only* to signal an automation's state. The
+  brand/action accent (`--zw-lamp`, brass/amber — links, primary buttons, focus rings, the brand
+  mark) is a deliberately different hue so it's never ambiguous whether a color on screen means
+  "this is a warning" or "this is a button." Don't introduce a fifth saturated color without
+  updating this rule.
+- **Four status states, not three.** `AutomationStatus` only has `Ok / Overdue / Paused`, but the
+  dashboard shows a fourth, `zw-status--waiting` ("Awaiting first ping"), derived purely in the
+  view from `Status == Ok && LastSeenAt == null` — an automation that's never received a ping yet
+  shouldn't read as "Live." Follow this pattern for future status-adjacent UI: derive presentation
+  states from real data in the view rather than adding enum values just to drive a badge.
+- **Type:** Manrope (self-hosted variable woff2, `wwwroot/fonts/`) for UI text and headings;
+  JetBrains Mono for anything literal — ping URLs, tokens, timestamps, durations — the monospace
+  treatment is a signal that the value is meant to be copied, not decoration. Use `<code>` or
+  `.zw-mono` for any new technical value shown to the user. No Google Fonts CDN dependency at
+  runtime.
+- **Reusable components** — check these before inventing a new pattern: `.zw-card` (surface),
+  `.zw-table-wrap` / `.zw-table` (data tables), `.zw-status` + `.zw-status--{ok|overdue|waiting|
+  paused}` + `.zw-status-dot` (status pill), `.zw-empty` (empty state), `.zw-eyebrow` (small
+  monospace section label), `.zw-ping-url` + `.zw-copy-btn` (copyable value with clipboard
+  button), `.zw-form-card` (auth/CRUD form shell), `.zw-flow-step` (numbered process step, only
+  for content that's a genuine sequence).
+- **Motion budget: one signature, spent already.** The pulsing status dot (`zw-pulse-calm` /
+  `zw-pulse-alert` keyframes, faster for overdue than live) is the one animated flourish, and it
+  respects `prefers-reduced-motion`. Don't add further decorative animation without a specific
+  reason tied to the product, not just "make it feel alive."
+- Out of scope for this pass, still open: Home has no marketing/pricing content (that's Module 2's
+  "Landing page" line item) and the dashboard doesn't yet apply live SignalR updates client-side
+  (only the day-0 `SmokeTest` view wires a hub connection) — a functionality gap, not a theming
+  one, worth picking up whenever the SignalR dashboard slice is actually built.
+
+## 6. What's explicitly deferred to post-v1
 Shopify/QuickBooks polling connectors (each needs OAuth plus a production app-review process
 outside build-time control), WhatsApp alerts (Business API template approval, same issue),
 Make/n8n-specific onboarding, team/multi-user accounts, admin tooling, volume-anomaly detection,
 AI-generated digests, public status pages, horizontal scaling (not a real concern at this
 customer count).
 
-## 6. Testing approach for v1
+## 7. Testing approach for v1
 Automated tests on: the watchdog's overdue-detection logic (gets the grace-period/timezone math
 wrong in either direction and the product either cries wolf constantly or misses a real outage —
 this is the core calculation logic) and the Razorpay webhook handler (payment path — wrongly
 bills someone or fails to activate a paying account). Everything else — CRUD screens, ping
 ingestion, alert message formatting — manual smoke-testing only.
 
-## 7. Definition of done for v1
+## 8. Definition of done for v1
 A real freelancer can sign up, add their client automations, wire up one Webhooks-by-Zapier step
 per Zapier's own onboarding doc, pay via Razorpay, and receive an SMS + email within the expected
 window the first time a monitored automation genuinely goes quiet — with zero manual intervention

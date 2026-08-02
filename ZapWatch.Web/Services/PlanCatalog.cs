@@ -12,9 +12,9 @@ public static class PlanCatalog
 {
     public static IReadOnlyList<PlanDefinition> All(IConfiguration config) =>
     [
-        new("Starter", config["Razorpay:PlanIds:Starter"]!, 5, 499),
-        new("Growth", config["Razorpay:PlanIds:Growth"]!, 15, 999),
-        new("Scale", config["Razorpay:PlanIds:Scale"]!, 40, 1999)
+        new("Starter", config["Razorpay:PlanIds:Starter"]!, 5, 5),
+        new("Growth", config["Razorpay:PlanIds:Growth"]!, 15, 10),
+        new("Scale", config["Razorpay:PlanIds:Scale"]!, 40, 20)
     ];
 
     public static PlanDefinition? Find(IConfiguration config, string planName) =>

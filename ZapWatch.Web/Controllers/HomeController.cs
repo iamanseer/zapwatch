@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ZapWatch.Web.Models;
 using ZapWatch.Web.Services;
@@ -45,6 +46,23 @@ public class HomeController(IConfiguration config) : Controller
     public IActionResult SmokeTest()
     {
         return View();
+    }
+
+    // Thin controller action rather than a static file, so it stays accurate as public
+    // pages get added - only lists actual content, not functional endpoints like
+    // /Automations, /Subscription, or /Account/* (those are excluded via robots.txt instead).
+    [Route("sitemap.xml")]
+    public IActionResult Sitemap()
+    {
+        // "/" not "" for the homepage, so it matches the canonical tag's Context.Request.Path
+        // for the root ("/") exactly instead of a bare domain with no trailing slash.
+        var urls = new[] { "/", "/pricing", "/how-it-works", "/onboarding", "/privacy", "/about" };
+        var xml = new XElement("urlset",
+            new XAttribute("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9"),
+            urls.Select(u => new XElement("url",
+                new XElement("loc", $"https://zap-watch.runasp.net{u}"),
+                new XElement("changefreq", "monthly"))));
+        return Content(new XDocument(xml).ToString(), "application/xml");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

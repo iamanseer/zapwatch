@@ -1,3 +1,4 @@
+@model IReadOnlyList<ZapWatch.Web.Services.PlanDefinition>
 @{
     ViewData["Title"] = "ZapWatch";
 }
@@ -17,13 +18,23 @@
         }
         else
         {
-            <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign up</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign up free</a>
             <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Log in</a>
         }
     </div>
 </div>
 
-<div class="zw-flow">
+<div class="zw-card p-4 p-md-5 mb-5">
+    <p class="zw-eyebrow mb-2">Who this is for</p>
+    <p class="mb-0" style="max-width:60ch;font-size:1.05rem;">
+        Independent Zapier freelancers and small automation agencies running 5+ client Zaps, with
+        no scalable way to catch one going silent before the client notices. If you've ever built a
+        heartbeat-table-and-watchdog-Zap by hand for a client, this replaces it.
+    </p>
+</div>
+
+<p class="zw-eyebrow mb-3">How it works</p>
+<div class="zw-flow mb-5">
     <div class="zw-flow-step">
         <span class="zw-flow-num">STEP 1</span>
         <h3>Register the automation</h3>
@@ -39,4 +50,29 @@
         <h3>Get alerted if it stops</h3>
         <p>Miss a window and you'll get an email + SMS right away. The next successful ping clears it automatically.</p>
     </div>
+</div>
+
+<p class="zw-eyebrow mb-1">Pricing</p>
+<h2 class="mb-4">One flat price per tier. No usage surprises.</h2>
+<div class="row g-3 mb-5">
+    @foreach (var plan in Model)
+    {
+        <div class="col-md-4">
+            <div class="zw-card p-4 h-100 d-flex flex-column">
+                <p class="zw-eyebrow mb-1">@plan.Name</p>
+                <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
+                <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary mt-auto">Get started</a>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="zw-card p-4 p-md-5 text-center mb-5">
+    <h2 class="mb-3">Try it on one automation, free.</h2>
+    <p class="zw-muted mb-4" style="max-width:52ch;margin-left:auto;margin-right:auto;">
+        Sign up and wire up your first automation with no payment required — see a real ping
+        arrive before you decide on a plan.
+    </p>
+    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign up free</a>
 </div>

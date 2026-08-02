@@ -1,14 +1,15 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ZapWatch.Web.Models;
+using ZapWatch.Web.Services;
 
 namespace ZapWatch.Web.Controllers;
 
-public class HomeController : Controller
+public class HomeController(IConfiguration config) : Controller
 {
     public IActionResult Index()
     {
-        return View();
+        return View(PlanCatalog.All(config));
     }
 
     public IActionResult Privacy()

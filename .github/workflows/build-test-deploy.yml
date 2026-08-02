@@ -81,7 +81,7 @@ jobs:
           }
 
           if (-not ($hostAndPort -like "*:*")) {
-              $hostAndPort = "$hostAndPort:8172"
+              $hostAndPort = "${hostAndPort}:8172"
           }
 
           $computerName = "https://${hostAndPort}/msdeploy.axd?site=$env:WD_SITE"

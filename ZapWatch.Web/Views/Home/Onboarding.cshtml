@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Add a Webhooks by Zapier step";
+}
+
+<p class="zw-eyebrow mb-1">Setup guide</p>
+<h1 class="mb-4">Add a Webhooks by Zapier step to your Zap</h1>
+
+<div class="zw-card p-4 p-md-5" style="max-width:760px;">
+    <p class="zw-muted mb-4">
+        This is the one thing ZapWatch needs from your Zap: a POST request to your unique ping
+        URL, sent every time the Zap actually runs. It doesn't need to touch any of your existing
+        data — it's a separate step at the end of the Zap that fires alongside your real steps.
+    </p>
+
+    <h3>1. Get your ping URL</h3>
+    <p>
+        On your <a asp-controller="Automations" asp-action="Index">Automations page</a>, find the
+        automation you want to monitor and copy its ping URL (the <code>zap-watch.runasp.net/ping/...</code>
+        value with the copy button next to it).
+    </p>
+
+    <h3>2. Open the Zap in Zapier's editor</h3>
+    <p>Open the Zap you want to monitor. You'll add one more step at the very end, after your existing action steps.</p>
+    <div class="zw-screenshot-slot">[Screenshot: Zapier's editor, showing the "+" button after the last existing step]</div>
+
+    <h3>3. Add a new step, search for "Webhooks by Zapier"</h3>
+    <p>Click the "+" to add a step, then search for <strong>Webhooks by Zapier</strong> as the app.</p>
+    <div class="zw-screenshot-slot">[Screenshot: app search results with "Webhooks by Zapier" selected]</div>
+
+    <h3>4. Choose "POST" as the event</h3>
+    <p>Under Webhooks by Zapier, pick <strong>POST</strong> from the event list, then continue.</p>
+    <div class="zw-screenshot-slot">[Screenshot: Webhooks by Zapier event picker with POST selected]</div>
+
+    <h3>5. Paste your ping URL into the URL field</h3>
+    <p>
+        In "Set up action," paste the ping URL you copied in step 1 into the <strong>URL</strong>
+        field. Leave everything else at its default — ZapWatch doesn't need any specific data in
+        the request, just the hit.
+    </p>
+    <div class="zw-screenshot-slot">[Screenshot: Webhooks action setup with the ping URL pasted into the URL field]</div>
+
+    <h3>6. Test the step</h3>
+    <p>
+        Use Zapier's "Test step" — this sends a real request to your ping URL right away. A
+        successful test here means ZapWatch already received a real ping.
+    </p>
+    <div class="zw-screenshot-slot">[Screenshot: Zapier's test-step panel showing a successful response]</div>
+
+    <h3>7. Publish the Zap</h3>
+    <p>Turn the Zap back on if you paused it to edit it. From here, every real run sends a ping automatically.</p>
+
+    <h3>8. Confirm it on ZapWatch</h3>
+    <p>
+        Back on your <a asp-controller="Automations" asp-action="Index">Automations page</a>, the
+        automation's "Last seen" column should now show a real timestamp instead of "Never," and
+        its status should read <strong>Live</strong>.
+    </p>
+    <div class="zw-screenshot-slot">[Screenshot: ZapWatch Automations page showing "Live" status and a recent Last seen timestamp]</div>
+
+    <hr class="my-4" style="border-color: var(--zw-line);" />
+
+    <h3>If nothing shows up</h3>
+    <ul class="mb-0">
+        <li>Check the Zap is actually turned on, not just saved as a draft.</li>
+        <li>Re-run "Test step" on the Webhooks action specifically — a successful test there means the ping definitely arrived.</li>
+        <li>Double check the URL was pasted in full, including <code>https://</code>, with no trailing spaces.</li>
+        <li>Confirm you're looking at the same automation on ZapWatch that you pasted the URL from — it's easy to grab the wrong row's URL when monitoring several Zaps.</li>
+    </ul>
+</div>

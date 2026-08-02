@@ -693,6 +693,26 @@ a:focus-visible, button:focus-visible {
 }
 
 /* ---------------------------------------------------------------------- */
+/* Screenshot placeholder - onboarding doc                                */
+/* ---------------------------------------------------------------------- */
+
+.zw-screenshot-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: 1.5rem;
+  margin: 1rem 0 1.5rem;
+  border: 1px dashed var(--zw-line-strong);
+  border-radius: var(--zw-radius-md);
+  background: var(--zw-ink-700);
+  color: var(--zw-text-3);
+  font-family: var(--zw-font-mono);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Alerts / validation                                                     */
 /* ---------------------------------------------------------------------- */
 

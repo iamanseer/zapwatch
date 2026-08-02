@@ -13,14 +13,21 @@
         <h1 class="mb-0">Automations</h1>
         <p class="zw-muted mb-0" style="font-size:0.85rem;">@Model.Count() of @limit automations used</p>
     </div>
-    <a asp-action="Create" class="btn btn-primary">Add automation</a>
+    <div class="d-flex gap-2 align-items-center">
+        <a asp-controller="Home" asp-action="Onboarding" class="btn btn-outline-secondary btn-sm">Setup guide</a>
+        <a asp-action="Create" class="btn btn-primary">Add automation</a>
+    </div>
 </div>
 
 @if (!Model.Any())
 {
     <div class="zw-empty">
         <h3 class="mb-0">Nothing on watch yet</h3>
-        <p>Add an automation to get a ping URL, then point a Webhooks by Zapier step at it to start monitoring.</p>
+        <p>
+            Add an automation to get a ping URL, then point a Webhooks by Zapier step at it to
+            start monitoring &mdash;
+            <a asp-controller="Home" asp-action="Onboarding">see how</a>.
+        </p>
         <a asp-action="Create" class="btn btn-primary">Add your first automation</a>
     </div>
 }

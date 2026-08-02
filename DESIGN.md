@@ -103,7 +103,8 @@ Check these before inventing a new pattern: `.zw-card` (surface), `.zw-table-wra
 pill), `.zw-empty` (empty state), `.zw-eyebrow` (small monospace section label), `.zw-ping-url` +
 `.zw-copy-btn` (copyable value with clipboard button), `.zw-form-card` (auth/CRUD form shell),
 `.zw-flow-step` (numbered process step, only for content that's a genuine sequence),
-`.zw-theme-toggle` (the nav sun/moon button).
+`.zw-theme-toggle` (the nav sun/moon button), `.zw-screenshot-slot` (dashed placeholder box for
+doc content awaiting a real screenshot).
 
 ## 10. Motion budget: one signature, spent already
 
@@ -119,14 +120,16 @@ always dot + colored pill + text label, never color alone.
 
 ## 12. Layout registers
 
-The dashboard (dense, table-first, utilitarian) and the future landing page (Module 2 — spacious,
-hero-led, marketing-first) are allowed to look different — that's normal for this product category
-(monitoring tool vs. its own marketing page), not an inconsistency to fix.
+The dashboard (dense, table-first, utilitarian) and the landing page (spacious, hero-led,
+marketing-first) look different — that's normal for this product category (monitoring tool vs.
+its own marketing page), not an inconsistency to fix. Both built; landing page reuses `.zw-card`
+for its positioning/pricing sections rather than inventing marketing-specific components.
 
 ## 13. Open / deferred
 
-- Module 2's landing page has no visual treatment defined yet beyond "spacious, hero-led" — design
-  it fresh when that slice starts, informed by this file's token system, not by copying the
-  dashboard's density.
-- Billing/account-settings screens (Module 2) should reuse `.zw-form-card` / `.zw-card`, not
-  introduce a third surface style.
+- The onboarding doc (`Views/Home/Onboarding.cshtml`) ships with `.zw-screenshot-slot` placeholders
+  instead of real screenshots — no browser automation was available when it was written. Drop real
+  screenshots into those 5 slots before pointing real customers at it; the text alone is accurate
+  and usable in the meantime.
+- Billing/account-settings screens reuse `.zw-form-card` / `.zw-card` as planned, no new surface
+  style was introduced.

@@ -17,6 +17,11 @@ public class HomeController(IConfiguration config) : Controller
         return View();
     }
 
+    public IActionResult Onboarding()
+    {
+        return View();
+    }
+
     public IActionResult SmokeTest()
     {
         return View();

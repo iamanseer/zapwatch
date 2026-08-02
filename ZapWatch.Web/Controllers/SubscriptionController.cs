@@ -28,7 +28,8 @@ public class SubscriptionController(
         return View(new SubscriptionIndexViewModel
         {
             Plans = PlanCatalog.All(config),
-            Current = current
+            Current = current,
+            CurrentPlanDefinition = current is null ? null : PlanCatalog.Find(config, current.Plan)
         });
     }
 

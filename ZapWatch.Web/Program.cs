@@ -1,6 +1,11 @@
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Json;
+using AspNet.Security.OAuth.GitHub;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +60,52 @@ builder.Services.AddAuthentication()
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
         options.CallbackPath = "/signin-google";
+    })
+    .AddMicrosoftAccount(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "";
+        options.CallbackPath = "/signin-microsoft";
+    })
+    .AddGitHub(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "";
+        options.CallbackPath = "/signin-github";
+        options.Scope.Add("user:email");
+
+        // GitHub only includes an email in the base profile response if the user made one
+        // public - most accounts don't. Fall back to the /user/emails endpoint (needs the
+        // user:email scope above) and use the primary verified address, so real GitHub
+        // sign-ins don't hit ExternalLoginCallback's "didn't share an email" rejection by default.
+        options.Events.OnCreatingTicket = async context =>
+        {
+            if (context.Identity!.FindFirst(ClaimTypes.Email) is not null)
+            {
+                return;
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+            request.Headers.UserAgent.ParseAdd("ZapWatch");
+
+            using var response = await context.Backchannel.SendAsync(
+                request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+            if (!response.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            using var payload = JsonDocument.Parse(
+                await response.Content.ReadAsStringAsync(context.HttpContext.RequestAborted));
+            var primaryEmail = payload.RootElement.EnumerateArray()
+                .FirstOrDefault(e => e.GetProperty("primary").GetBoolean() && e.GetProperty("verified").GetBoolean());
+
+            if (primaryEmail.ValueKind == JsonValueKind.Object)
+            {
+                context.Identity.AddClaim(new Claim(ClaimTypes.Email, primaryEmail.GetProperty("email").GetString()!));
+            }
+        };
     });
 
 builder.Services.AddHangfire(config => config

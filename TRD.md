@@ -35,19 +35,22 @@
   serverless quota to track, no vCore-second budget that could get eaten by 24/7 watchdog
   polling. Comfortably handles this scale (low write volume — pings from a handful of customers'
   Zaps, not a high-frequency event stream).
-- **Hosting:** MonsterASP.NET, Premium Single plan (~$1.95/month first year, $2.50/month
-  renewal) — swapped in for Azure at Anseer's request. Purpose-built for exactly this stack:
-  Windows/IIS, MSSQL 2025 bundled into the same plan, native ASP.NET Core support, one-click
-  Visual Studio deploy — a tighter fit than a generic cloud host translating a Windows/SQL Server
+- **Hosting:** MonsterASP.NET. Currently running on the **Free** plan
+  (`zap-watch.runasp.net`) — swapped in for Azure at Anseer's request, Premium Single
+  (~$1.95/month first year, $2.50/month renewal) was the original plan but hasn't been purchased
+  yet. Purpose-built for exactly this stack: Windows/IIS, MSSQL bundled into the same plan, native
+  ASP.NET Core support — a tighter fit than a generic cloud host translating a Windows/SQL Server
   app onto Linux, and it sidesteps the free-tier "Always On requires a paid tier" wall that ruled
   out Azure and Render. Their own support team confirmed directly on their forum that Hangfire
-  runs cleanly on their platform. Premium Single, not the Free plan: the Free plan's actual
-  feature-comparison table (not the general marketing copy, which oversimplifies) shows no HTTPS,
-  256MB RAM, one 1GB database, EU-only. No HTTPS specifically is disqualifying once login and the
-  Razorpay payment flow exist — so this isn't really a departure from "free," it's the cheapest
-  way to remove a real blocker. Still open: whether SignalR/WebSocket connections work on their
-  platform — unconfirmed either way. See Module 1's day-0 smoke test in `MODULES.md`, which
-  exists specifically to resolve this before any real feature code is written.
+  runs cleanly on their platform.
+  - **Correction from an earlier version of this doc:** the Free plan does serve HTTPS — via a
+    shared cert on the `*.runasp.net` subdomain, confirmed live on `zap-watch.runasp.net`. The
+    "no HTTPS" limitation only applies to a **custom domain**, not the free subdomain. Premium
+    Single is still needed before launching under a real domain name (e.g. `zapwatch.com`), but
+    it was not the HTTPS blocker this doc originally described for the current subdomain setup.
+  - **Resolved:** SignalR/WebSocket connections work cleanly on MonsterASP.NET, including on the
+    Free plan — confirmed by Module 1's day-0 smoke test and re-confirmed since via live
+    cross-user scoping tests with real WebSocket connections in production.
 - **AI/LLM component:** None in v1.
 
 ## 2. Data model
@@ -114,3 +117,9 @@ A real freelancer can sign up, add their client automations, wire up one Webhook
 per Zapier's own onboarding doc, pay via Razorpay, and receive an SMS + email within the expected
 window the first time a monitored automation genuinely goes quiet — with zero manual intervention
 from Anseer.
+
+**Status: verified in test mode, not yet true for a real paying customer.** Every step above works
+end-to-end against Razorpay test mode and confirmed email delivery. Three concrete blockers remain
+before this is actually true for a stranger with a real card and a real phone: Razorpay live-mode
+KYC/business verification (not started), Twilio account still in trial mode (blocks real SMS
+sending), and the onboarding doc's screenshots are still placeholders.

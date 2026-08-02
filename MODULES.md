@@ -3,17 +3,18 @@
 v1 is small enough that it splits cleanly into two modules rather than an artificially longer
 list — see effort estimates below; both land inside the 3–10 evening-block sizing rule.
 
-## Module 1: Core Monitoring Engine
+## Module 1: Core Monitoring Engine — ✅ Done
+Built, tested, and deployed to production (`zap-watch.runasp.net`). All 6 slices shipped; see
+git history on `main` for the slice-by-slice commits.
 - **Purpose** — Lets an operator register automations and get reliably alerted the moment one
   goes silent. This is the product; everything else is packaging around it.
 - **Core details**
   - Day-0 smoke test (do this before anything else below): deploy a bare-bones app to
     MonsterASP.NET Premium Single with a Hangfire recurring job and a SignalR hub, leave it
     untouched for 30–60 minutes, confirm the job still fires and a test SignalR connection still
-    works with no page requests keeping it awake. Hangfire is confirmed working by MonsterASP.NET's
-    own support team; SignalR/WebSocket support on their platform is not yet confirmed either way.
-    This is the single biggest unknown in the whole hosting decision — resolve it in an hour before
-    sinking evening-blocks into the rest.
+    works with no page requests keeping it awake. **Resolved:** both work cleanly on MonsterASP.NET
+    Premium Single — confirmed by the smoke test itself and re-confirmed since via the live
+    cross-user SignalR scoping test in Module 1 Slice 6.
   - Signup/login
   - Automation CRUD: name, expected frequency, grace period, generated ping URL
   - Ping ingestion endpoint (`/ping/{token}`), updates `last_seen_at`
@@ -35,17 +36,23 @@ list — see effort estimates below; both land inside the 3–10 evening-block s
   real tests, not just a manual pass. Second risk, new with SignalR: connections must be scoped
   per authenticated user — an ungrouped broadcast leaks one customer's automation status to
   another customer's browser. Worth a specific test, not just a visual check that updates arrive.
-  Third risk: if the day-0 smoke test shows SignalR doesn't work cleanly on MonsterASP.NET,
-  Module 1's effort estimate below is void and this needs replanning before continuing.
+  Third risk (did not materialize): the day-0 smoke test passed cleanly, so no replan was needed.
 - **Effort estimate** — 7–9 evening-blocks (was 6–7; +1.5–2 for the SignalR hub, its two emit
   points, and a reconnect-aware JS client with per-user scoping).
 - **Done condition** — A test automation that stops pinging past its window triggers exactly one
   email + SMS alert, returns to "ok" on the next successful ping with no duplicate alerts firing
   while still overdue, and the dashboard reflects each status change live without a refresh —
-  visible only to that automation's own owner.
-- **Build order priority** — Now.
+  visible only to that automation's own owner. **Met, with one caveat** — verified live in
+  production with two real accounts and real WebSocket connections (Slice 6), and a live
+  overdue→alert→resolve cycle (Slice 4). Email delivery confirmed working end-to-end; SMS is
+  code-complete but blocked by the Twilio account still being in trial mode (only predefined
+  templates allowed, not our alert text) — an account/billing decision, not a code gap.
+- **Build order priority** — Done.
 
-## Module 2: Monetization & Launch
+## Module 2: Monetization & Launch — ✅ Done
+Built, tested, and deployed to production. All 6 slices shipped (subscription entity/plan
+selection, Razorpay checkout, webhook handler, automation-limit gating, landing page, onboarding
+doc).
 - **Purpose** — Turns the working engine into something a stranger can pay for and set up without
   Anseer's help.
 - **Core details**
@@ -65,17 +72,29 @@ list — see effort estimates below; both land inside the 3–10 evening-block s
 - **Effort estimate** — 2–3 evening-blocks + 2 Saturday-blocks.
 - **Done condition** — A real payment via Razorpay activates monitoring on an account, and the
   onboarding doc alone (no direct help from Anseer) is enough for a test user to correctly wire
-  up their first ping.
-- **Build order priority** — Now (Razorpay KYC step, parallel to Module 1) / Next (everything
-  else, once Module 1 lands).
+  up their first ping. **Met, with two caveats** — 25 tests plus a live test: a real Razorpay
+  test-mode subscription was created via the app, a signed webhook call correctly activated it,
+  and a forged webhook was correctly rejected (401). Caveats: (1) the actual Checkout.js payment
+  widget itself hasn't been clicked through in a real browser yet (only the webhook side was
+  exercised directly) — worth doing once with a Razorpay test card; (2) the onboarding doc's 5
+  screenshot slots are still placeholders (`.zw-screenshot-slot` in `DESIGN.md` §13) — no browser
+  automation was available to capture real ones.
+- **Build order priority** — Done. Razorpay KYC/business verification for a *live* (non-test-mode)
+  account is still outstanding and remains the real blocker before charging real customers — the
+  above is all built and verified against Razorpay test mode.
 
 ## Module dependency map
 `M1 (Core Monitoring Engine) → M2 (Monetization & Launch)`
 
-## Suggested build order
+## Suggested build order (historical — both modules now done)
 The day-0 smoke test comes before anything else, full stop — it's an hour of work that either
 confirms the hosting decision or forces a replan while the cost of being wrong is still small.
 After that, M1 — it's the entire risk surface of v1 (the watchdog logic is the one piece of "this
 needs to actually be correct" business logic in the whole product) and the thing worth failing
 fast on if the evening-block pace can't sustain it. Start Razorpay's KYC/business verification in
 parallel with M1 so it isn't sitting on the critical path when M2 starts.
+
+Actual order followed this exactly. Both modules are complete as of this writing; what's left
+before real customers is: Razorpay live-mode KYC, a Twilio account upgrade (SMS is in trial-mode
+restriction), a real-browser Checkout.js click-through, and real screenshots for the onboarding
+doc.

@@ -47,6 +47,10 @@ per the onboarding doc, pay via Razorpay, and receive an SMS + email within the 
 the first time a monitored automation genuinely goes quiet — with zero manual intervention from
 Anseer.
 
+**Status: verified in test mode, not yet true for a real paying customer** — see `TRD.md` §8 for
+the three concrete blockers (Razorpay live-mode KYC, Twilio trial-mode restriction, onboarding doc
+screenshots).
+
 ## What NOT to do
 - Don't build Shopify/QuickBooks polling, WhatsApp alerts, or Make/n8n onboarding in v1 — all
   explicitly deferred in `TRD.md`.

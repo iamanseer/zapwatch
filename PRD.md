@@ -73,11 +73,11 @@ None in v1 — revisit post-launch. Concrete candidates for later:
 3 paying accounts within 30 days of launch.
 
 ## 8. Timeline (evening-blocks / Saturday-blocks only)
-| Milestone | Block estimate | Target |
-|---|---|---|
-| Core monitoring engine working end-to-end | ~7–9 evening-blocks | Week 1–2 of build |
-| Billing + onboarding doc + deploy | ~2–3 evening-blocks + 2 Saturday-blocks | Week 2–3 of build |
-| First paying customer | — | ~Week 3–4 of build |
+| Milestone | Block estimate | Target | Actual |
+|---|---|---|---|
+| Core monitoring engine working end-to-end | ~7–9 evening-blocks | Week 1–2 of build | ✅ Done — deployed to production, see `MODULES.md` |
+| Billing + onboarding doc + deploy | ~2–3 evening-blocks + 2 Saturday-blocks | Week 2–3 of build | ✅ Done — Razorpay test-mode verified live, see `MODULES.md`; live-mode KYC still outstanding |
+| First paying customer | — | ~Week 3–4 of build | Not yet — blocked on Razorpay live-mode KYC |
 
 ## 9. Risks carried over from the feasibility study
 - No willingness-to-pay signal yet as of this PRD — the Stage 2 study called this idea "Not-yet"

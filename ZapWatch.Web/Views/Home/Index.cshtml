@@ -1,78 +1,188 @@
 @model IReadOnlyList<ZapWatch.Web.Services.PlanDefinition>
 @{
-    ViewData["Title"] = "ZapWatch";
+    ViewData["Title"] = "ZapWatch — Know before your client does";
+    var isAuthed = User.Identity?.IsAuthenticated == true;
 }
 
 <div class="zw-hero">
-    <p class="zw-eyebrow mb-3">Silent-failure monitoring for Zapier</p>
-    <h1 class="mb-3">Know the second a client automation goes quiet.</h1>
-    <p class="lead mb-4">
-        Zaps don't error out when they break — they just stop. ZapWatch watches for the ping
-        that should follow every run and alerts you by email and SMS the moment one goes
-        overdue, so you catch it before your client does.
-    </p>
-    <div class="d-flex flex-wrap gap-2">
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-            <a asp-controller="Automations" asp-action="Index" class="btn btn-primary">Go to your automations</a>
-        }
-        else
-        {
-            <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign up free</a>
-            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Log in</a>
-        }
-    </div>
-</div>
-
-<div class="zw-card p-4 p-md-5 mb-5">
-    <p class="zw-eyebrow mb-2">Who this is for</p>
-    <p class="mb-0" style="max-width:60ch;font-size:1.05rem;">
-        Independent Zapier freelancers and small automation agencies running 5+ client Zaps, with
-        no scalable way to catch one going silent before the client notices. If you've ever built a
-        heartbeat-table-and-watchdog-Zap by hand for a client, this replaces it.
-    </p>
-</div>
-
-<p class="zw-eyebrow mb-3">How it works</p>
-<div class="zw-flow mb-5">
-    <div class="zw-flow-step">
-        <span class="zw-flow-num">STEP 1</span>
-        <h3>Register the automation</h3>
-        <p>Name it, set how often it should run and how much grace to allow before it counts as overdue.</p>
-    </div>
-    <div class="zw-flow-step">
-        <span class="zw-flow-num">STEP 2</span>
-        <h3>Point a ping at it</h3>
-        <p>Add a Webhooks by Zapier step to the end of the Zap, pointed at the unique ping URL ZapWatch gives you.</p>
-    </div>
-    <div class="zw-flow-step">
-        <span class="zw-flow-num">STEP 3</span>
-        <h3>Get alerted if it stops</h3>
-        <p>Miss a window and you'll get an email + SMS right away. The next successful ping clears it automatically.</p>
-    </div>
-</div>
-
-<p class="zw-eyebrow mb-1">Pricing</p>
-<h2 class="mb-4">One flat price per tier. No usage surprises.</h2>
-<div class="row g-3 mb-5">
-    @foreach (var plan in Model)
-    {
-        <div class="col-md-4">
-            <div class="zw-card p-4 h-100 d-flex flex-column">
-                <p class="zw-eyebrow mb-1">@plan.Name</p>
-                <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
-                <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
-                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary mt-auto">Get started</a>
+    <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+            <p class="zw-eyebrow mb-3">For Zapier freelancers &amp; agencies</p>
+            <h1 class="mb-3">Know before your client does.</h1>
+            <p class="lead mb-4">
+                ZapWatch pings your client Zaps and alerts you by email + SMS the moment one goes
+                quiet — no dashboard to babysit, no client finding out first.
+            </p>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                @if (isAuthed)
+                {
+                    <a asp-controller="Automations" asp-action="Index" class="btn btn-primary">Go to your automations</a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Start monitoring — free</a>
+                    <a href="#how" class="zw-muted fw-semibold text-decoration-none">See how it works ↓</a>
+                }
             </div>
         </div>
-    }
+        <div class="col-lg-6">
+            <div class="zw-card p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semibold" style="font-size:0.9rem;">Client automations</span>
+                    <span class="zw-muted" style="font-size:0.78rem;">4 monitored</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold" style="font-size:0.88rem;">Shopify &rarr; QuickBooks invoice</div>
+                        <div class="zw-muted zw-mono" style="font-size:0.74rem;">last ping 3m ago</div>
+                    </div>
+                    <span class="zw-status zw-status--ok"><span class="zw-status-dot"></span>OK</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold" style="font-size:0.88rem;">Form lead &rarr; CRM contact</div>
+                        <div class="zw-muted zw-mono" style="font-size:0.74rem;">overdue by 41m</div>
+                    </div>
+                    <span class="zw-status zw-status--overdue"><span class="zw-status-dot"></span>OVERDUE</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold" style="font-size:0.88rem;">Order sync &rarr; fulfillment</div>
+                        <div class="zw-muted zw-mono" style="font-size:0.74rem;">last ping 8m ago</div>
+                    </div>
+                    <span class="zw-status zw-status--ok"><span class="zw-status-dot"></span>OK</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <div>
+                        <div class="fw-semibold" style="font-size:0.88rem;">Ticket &rarr; Slack alert</div>
+                        <div class="zw-muted zw-mono" style="font-size:0.74rem;">awaiting first ping</div>
+                    </div>
+                    <span class="zw-status zw-status--waiting"><span class="zw-status-dot"></span>WAITING</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="zw-card p-4 p-md-5 text-center mb-5">
-    <h2 class="mb-3">Try it on one automation, free.</h2>
-    <p class="zw-muted mb-4" style="max-width:52ch;margin-left:auto;margin-right:auto;">
-        Sign up and wire up your first automation with no payment required — see a real ping
-        arrive before you decide on a plan.
+<section class="py-5 border-top">
+    <p class="zw-eyebrow mb-1">The problem</p>
+    <h2 class="mb-4">The silent kind of broken.</h2>
+    <div class="zw-card p-4 p-md-5" style="font-size:1rem;line-height:1.7;max-width:76ch;">
+        Your client's Shopify-to-QuickBooks Zap still shows
+        <strong style="color:var(--zw-overdue);">green</strong> in their Zapier dashboard. It's
+        been "on" for three weeks straight. It also
+        <strong style="color:var(--zw-overdue);">hasn't actually run once</strong> since a filter
+        change on the 14th — and nobody finds out until the client asks where last month's
+        invoices went. Zapier didn't error. Nothing broke loudly. It just went quiet, and quiet
+        doesn't show up anywhere you'd think to look.
+    </div>
+</section>
+
+<section id="how" class="py-5 border-top">
+    <p class="zw-eyebrow mb-1">How it works</p>
+    <h2 class="mb-2">Four steps, one webhook.</h2>
+    <p class="zw-muted mb-4" style="max-width:56ch;">
+        No new platform to learn — you're adding one step to a Zap you already built.
     </p>
-    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign up free</a>
-</div>
+    <div class="row row-cols-1 row-cols-md-4 g-3">
+        <div class="col">
+            <div class="zw-flow-step h-100">
+                <span class="zw-flow-num">01</span>
+                <h3>Add the automation</h3>
+                <p>Name it, set how often it should run, and how much slack to give it before you'd call it overdue.</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="zw-flow-step h-100">
+                <span class="zw-flow-num">02</span>
+                <h3>Copy the ping URL</h3>
+                <p class="mb-2">A unique URL is generated the moment you add the automation.</p>
+                <span class="zw-ping-url" style="font-size:0.7rem;">
+                    <code>https://zap-watch.runasp.net/ping/8f3a&hellip;</code>
+                    <button type="button" class="zw-copy-btn" disabled>Copy</button>
+                </span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="zw-flow-step h-100">
+                <span class="zw-flow-num">03</span>
+                <h3>Add one step to the Zap</h3>
+                <p>"Webhooks by Zapier" &rarr; POST to that URL. Last step, after everything else already runs.</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="zw-flow-step h-100">
+                <span class="zw-flow-num">04</span>
+                <h3>Get alerted, not surprised</h3>
+                <p>Email + SMS the moment it goes quiet. Clears itself the next time it fires.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 border-top">
+    <p class="zw-eyebrow mb-1">Why ZapWatch</p>
+    <h2 class="mb-2">Not another dead man's switch.</h2>
+    <p class="zw-muted mb-4" style="max-width:56ch;">
+        Generic ping-monitoring tools exist, and some are free. Here's the honest difference.
+    </p>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="zw-card p-4 h-100">
+                <h3 style="font-size:1rem;" class="mb-2">A generic monitor</h3>
+                <p class="zw-muted mb-0" style="font-size:0.92rem;line-height:1.6;">
+                    Built for a developer watching their own cron jobs. You'll be reading a
+                    dashboard built for someone else's job, in someone else's vocabulary, with no
+                    idea what a "client" or a "Zap" even is.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="zw-card p-4 h-100" style="background:var(--zw-lamp-wash);border-color:var(--zw-lamp);">
+                <h3 style="font-size:1rem;color:var(--zw-lamp-strong);" class="mb-2">ZapWatch</h3>
+                <p class="mb-0" style="font-size:0.92rem;line-height:1.6;color:var(--zw-text-1);">
+                    Speaks Zapier from the first screen. Every automation is framed as a client's
+                    automation — and the alert you get is the one you can forward to a client
+                    without translating it first.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="pricing" class="py-5 border-top">
+    <p class="zw-eyebrow mb-1">Pricing</p>
+    <h2 class="mb-4">Priced by how many clients you're watching.</h2>
+    <div class="row g-3">
+        @foreach (var plan in Model)
+        {
+            <div class="col-md-4">
+                <div class="zw-card p-4 h-100 d-flex flex-column">
+                    <p class="zw-eyebrow mb-1">@plan.Name</p>
+                    <p class="mb-1"><span style="font-size:1.8rem;font-weight:800;">&#8377;@plan.PriceInRupees</span> <span class="zw-muted">/month</span></p>
+                    <p class="zw-muted mb-4">Up to @plan.AutomationLimit monitored automations</p>
+                    @if (isAuthed)
+                    {
+                        <a asp-controller="Subscription" asp-action="Index" class="btn btn-outline-secondary mt-auto">Subscribe</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary mt-auto">Start free</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="py-5 border-top">
+    <div class="mx-auto text-center" style="max-width:680px;">
+        <span class="zw-eyebrow d-block mb-3">Why this exists</span>
+        <p class="zw-muted mb-0" style="font-size:1.05rem;line-height:1.7;">
+            The same question has been asked on Zapier's own community forum, on and off, since
+            2021: how do you catch a client's Zap that just&hellip; stopped. Never a real fix —
+            just the same hand-built spreadsheet-and-watchdog-Zap trick, rebuilt from scratch by
+            whoever hit the problem next. This is that fix, built once.
+        </p>
+    </div>
+</section>

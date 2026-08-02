@@ -42,6 +42,15 @@
                                 <a class="nav-link zw-nav-link" asp-area="" asp-controller="Subscription" asp-action="Index">Billing</a>
                             </li>
                         }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link zw-nav-link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="how">How it works</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link zw-nav-link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="pricing">Pricing</a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav align-items-sm-center">
                         <li class="nav-item">

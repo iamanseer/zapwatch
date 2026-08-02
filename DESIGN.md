@@ -12,8 +12,18 @@ product should read as calm and trustworthy at rest, and unambiguous the moment 
 attention — not as a moody dark-mode dev tool by default. The default theme, **"Zapier Bright,"**
 is a deliberate match to the actual product our exact audience (Zapier freelancers/agencies)
 already uses daily — familiarity there builds trust faster than an original visual identity
-would. **"Night Watch"** (ink-dark, brass-accent) is kept as the alternate theme via a nav toggle,
-not discarded — some operators will prefer it for a dashboard they leave open all day.
+would. **"Night Watch"** (ink-dark, violet-accent) is kept as the alternate theme via a nav
+toggle, not discarded — some operators will prefer it for a dashboard they leave open all day.
+
+The brand accent itself (`--zw-lamp`) deliberately does **not** borrow Zapier's own orange, even
+though the rest of the visual language nods to Zapier's product conventions. `--zw-lamp` originally
+was `#ff4a00` — Zapier's exact registered brand orange, not just a similar hue — which put ZapWatch
+at odds with Zapier's own Solution Partner Brand Guidelines (partners must use their own color
+palette, not Zapier's) right as `LAUNCH-PLAN.md`'s outreach plan for that exact directory. `--zw-lamp`
+moved to a signal-violet family (`#4f3ff0` light / `#a196ff` dark) instead — same job (energetic,
+unambiguous against the reserved status colors, never confusable with a status color), same
+per-theme tinting pattern as the rest of the palette, just not Zapier's own trademarked hue. Full
+reasoning in `RESTYLING-PLAN.md`.
 
 Research behind this (Zapier's actual product design language; light-mode conventions from
 Healthchecks.io, Better Stack, Cronitor, UptimeRobot) plus the full 9-stage user-flow mapping that
@@ -53,8 +63,8 @@ other is the most common way this drifts — check both when touching a token.
 | `--zw-ink-700` (raised/hover) | `#f3f4f6` | `#1e232e` |
 | `--zw-text-1` (primary text) | `#1b1b1d` | `#edeff4` |
 | `--zw-text-2` (muted text) | `#5b6270` | `#9aa3b2` |
-| `--zw-lamp` (brand accent) | `#ff4a00` (Zapier orange) | `#e3a542` (brass) |
-| `--zw-on-lamp` (text on accent) | `#ffffff` | `#1a1204` |
+| `--zw-lamp` (brand accent) | `#4f3ff0` (signal violet) | `#a196ff` (lighter violet tint) |
+| `--zw-on-lamp` (text on accent) | `#ffffff` | `#14102e` |
 | `--zw-ok` | `#1c9a5b` | `#34c78a` |
 | `--zw-overdue` | `#e0392b` | `#f1555d` |
 | `--zw-waiting` | `#2f6fed` | `#6e93d6` |

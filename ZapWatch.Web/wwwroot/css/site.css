@@ -44,11 +44,14 @@
   --zw-text-2: #5b6270;
   --zw-text-3: #8b909c;
 
-  /* Zapier-orange accent — brand/actions, never status */
-  --zw-lamp: #ff4a00;
-  --zw-lamp-strong: #e64300;
-  --zw-lamp-dim: #c93a00;
-  --zw-lamp-wash: rgba(255, 74, 0, 0.1);
+  /* Signal-violet accent — brand/actions, never status. See RESTYLING-PLAN.md:
+     moved off Zapier's exact registered orange (#ff4a00) to avoid the trademark/
+     brand-guideline overlap flagged there, ahead of using the Solution Partner
+     directory for outreach. */
+  --zw-lamp: #4f3ff0;
+  --zw-lamp-strong: #4739d9;
+  --zw-lamp-dim: #3e32bd;
+  --zw-lamp-wash: rgba(79, 63, 240, 0.1);
   --zw-on-lamp: #ffffff;
   --zw-on-status: #ffffff;
 
@@ -87,10 +90,10 @@
   --bs-secondary-color: var(--zw-text-2);
   --bs-tertiary-bg: var(--zw-ink-800);
   --bs-primary: var(--zw-lamp);
-  --bs-primary-rgb: 255, 74, 0;
+  --bs-primary-rgb: 79, 63, 240;
   --bs-link-color: var(--zw-lamp-strong);
   --bs-link-hover-color: var(--zw-lamp);
-  --bs-link-color-rgb: 230, 67, 0;
+  --bs-link-color-rgb: 71, 57, 217;
   --bs-emphasis-color: var(--zw-text-1);
 }
 
@@ -110,11 +113,11 @@
   --zw-text-2: #9aa3b2;
   --zw-text-3: #626b7a;
 
-  --zw-lamp: #e3a542;
-  --zw-lamp-strong: #f2b65b;
-  --zw-lamp-dim: #b9852f;
-  --zw-lamp-wash: rgba(227, 165, 66, 0.13);
-  --zw-on-lamp: #1a1204;
+  --zw-lamp: #a196ff;
+  --zw-lamp-strong: #aaa1ff;
+  --zw-lamp-dim: #8178cc;
+  --zw-lamp-wash: rgba(161, 150, 255, 0.13);
+  --zw-on-lamp: #14102e;
   --zw-on-status: #1a1204;
 
   --zw-ok: #34c78a;
@@ -130,15 +133,15 @@
 
   --zw-header-bg: rgba(11, 13, 18, 0.85);
   --zw-body-glow:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(227, 165, 66, 0.06), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(161, 150, 255, 0.06), transparent 60%),
     radial-gradient(ellipse 700px 500px at 100% 0%, rgba(110, 147, 214, 0.05), transparent 55%);
   --zw-navbar-icon-filter: invert(1) grayscale(1) brightness(1.6);
 
   --zw-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.6);
 
   color-scheme: dark;
-  --bs-primary-rgb: 227, 165, 66;
-  --bs-link-color-rgb: 242, 182, 91;
+  --bs-primary-rgb: 161, 150, 255;
+  --bs-link-color-rgb: 170, 161, 255;
 }
 
 * {

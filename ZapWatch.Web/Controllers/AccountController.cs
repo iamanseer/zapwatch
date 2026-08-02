@@ -94,6 +94,48 @@ public class AccountController(
         return RedirectToAction("Index", "Home");
     }
 
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Profile()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        return View(new ProfileViewModel
+        {
+            Email = user.Email!,
+            PhoneNumber = user.PhoneNumber ?? ""
+        });
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(ProfileViewModel model)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        model.Email = user.Email!;
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        user.PhoneNumber = model.PhoneNumber;
+        await userManager.UpdateAsync(user);
+
+        TempData["ProfileSaved"] = "true";
+        return RedirectToAction(nameof(Profile));
+    }
+
     private IActionResult RedirectToLocal(string? returnUrl)
     {
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))

@@ -35,7 +35,7 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <span class="nav-link zw-nav-user">@User.Identity!.Name</span>
+                                <a class="nav-link zw-nav-link zw-nav-user" asp-controller="Account" asp-action="Profile">@User.Identity!.Name</a>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">

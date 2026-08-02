@@ -1,6 +1,46 @@
 @{
     ViewData["Title"] = "About Us";
+    ViewData["Description"] = "Why ZapWatch exists, and who's building it.";
 }
-<h1 class="mb-3">@ViewData["Title"]</h1>
 
-<p class="zw-muted">Real founder-note content lands in Module 3 Slice 13 (PRD §10: About Us page).</p>
+<p class="zw-eyebrow mb-1">About</p>
+<h1 class="mb-4">Built by one freelancer, for people doing the same work.</h1>
+
+<div class="zw-card p-4 p-md-5" style="max-width:760px;">
+    <p>
+        I'm Anseer. ZapWatch started from the same question that's been asked, on and off, on
+        Zapier's own community forum since 2021: how do you catch a client's Zap that just&hellip;
+        stopped, without building a heartbeat table and a watchdog Zap by hand for every single
+        client automation you maintain. Nobody had shipped a real answer &mdash; just the same
+        DIY pattern, rebuilt from scratch by whoever hit the problem next. That's the whole reason
+        this exists.
+    </p>
+
+    <h3>Who's building it</h3>
+    <p>
+        Right now, just me, in weekday evening blocks and a few hours on Saturdays &mdash; not a
+        funded team. That's not a caveat I'm hiding; it's context worth knowing if you're deciding
+        whether to trust a client's alerting to this. It also means I've been deliberate about
+        where the corners get cut and where they don't: the watchdog logic that decides whether an
+        automation has actually gone quiet, and the payment path that activates your subscription,
+        both get real automated tests, not just a manual click-through. Everything else &mdash;
+        screens, copy, polish &mdash; ships at a rougher, faster pace on purpose. If something's
+        going to quietly break your trust in this product, it's not going to be a typo on the
+        pricing page.
+    </p>
+
+    <h3>What this isn't</h3>
+    <p>
+        This isn't trying to be a general-purpose uptime or cron monitor with a Zapier skin bolted
+        on. It's built narrowly for Zapier freelancers and small agencies watching client
+        automations, in Zapier's own vocabulary, and it stays that way on purpose &mdash; Make and
+        n8n support, Shopify/QuickBooks-specific polling, and a few other things are deliberately
+        out of scope for now rather than half-built everywhere.
+    </p>
+
+    <h3>Get in touch</h3>
+    <p class="mb-0">
+        Questions, bug reports, or just want to tell me what's missing:
+        <a href="mailto:iamanseernk@gmail.com">iamanseernk@gmail.com</a>.
+    </p>
+</div>

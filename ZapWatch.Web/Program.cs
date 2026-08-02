@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ZapWatch.Web.Data;
@@ -18,6 +19,14 @@ builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Persist Data Protection keys (used for antiforgery tokens, auth cookies) in SQL Server
+// instead of the default local filesystem/in-memory store. On shared IIS hosting, worker
+// process recycles can otherwise regenerate keys mid-session and invalidate tokens issued
+// moments earlier - manifests as a bare 400 on any [ValidateAntiForgeryToken] POST.
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<ApplicationDbContext>()
+    .SetApplicationName("ZapWatch");
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {

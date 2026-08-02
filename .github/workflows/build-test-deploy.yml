@@ -60,6 +60,16 @@ jobs:
       - name: Publish
         run: dotnet publish ZapWatch.Web/ZapWatch.Web.csproj --configuration Release --output ./publish
 
+      - name: Inject production connection string
+        shell: pwsh
+        env:
+          SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
+        run: |
+          $path = "./publish/appsettings.json"
+          $json = Get-Content $path -Raw | ConvertFrom-Json
+          $json.ConnectionStrings.Default = $env:SQL_CONNECTION_STRING
+          $json | ConvertTo-Json -Depth 10 | Set-Content $path
+
       - name: Deploy via MSDeploy
         shell: pwsh
         env:

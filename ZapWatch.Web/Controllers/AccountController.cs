@@ -95,6 +95,117 @@ public class AccountController(
 
     [HttpGet]
     [AllowAnonymous]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await userManager.FindByEmailAsync(model.Email);
+        if (user is not null)
+        {
+            try
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                var resetUrl = Url.Action(nameof(ResetPassword), "Account",
+                    new { userId = user.Id, token = encodedToken }, Request.Scheme)!;
+
+                await emailSender.SendAsync(
+                    user.Email!,
+                    "Reset your ZapWatch password",
+                    $"<p>Click below to set a new password for {user.Email}:</p>"
+                    + $"<p><a href=\"{resetUrl}\">Reset my password</a></p>"
+                    + "<p>If you didn't request this, you can ignore this email.</p>");
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to send password reset email to {Email}", user.Email);
+            }
+        }
+
+        // Same response whether or not the account exists - don't leak which emails are registered.
+        return RedirectToAction(nameof(ForgotPasswordConfirmation));
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ForgotPasswordConfirmation()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ResetPassword(string? userId, string? token)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        return View(new ResetPasswordViewModel { UserId = userId, Token = token });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await userManager.FindByIdAsync(model.UserId);
+        if (user is null)
+        {
+            // Don't reveal whether the account exists.
+            return RedirectToAction(nameof(ResetPasswordConfirmation));
+        }
+
+        string decodedToken;
+        try
+        {
+            decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+        }
+        catch (FormatException)
+        {
+            ModelState.AddModelError(string.Empty, "That reset link is invalid or has expired.");
+            return View(model);
+        }
+
+        var result = await userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        return RedirectToAction(nameof(ResetPasswordConfirmation));
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ResetPasswordConfirmation()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> ConfirmEmail(string? userId, string? token)
     {
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))

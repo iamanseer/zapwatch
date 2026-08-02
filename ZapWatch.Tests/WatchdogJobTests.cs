@@ -28,6 +28,19 @@ public class WatchdogJobTests
         return new ApplicationDbContext(options);
     }
 
+    private static async Task<string> AddUserAsync(ApplicationDbContext db, string userId = "user-1")
+    {
+        db.Users.Add(new ApplicationUser
+        {
+            Id = userId,
+            UserName = $"{userId}@example.com",
+            Email = $"{userId}@example.com",
+            PhoneNumber = "+15550000000"
+        });
+        await db.SaveChangesAsync();
+        return userId;
+    }
+
     private static Automation MakeOverdueAutomation(string userId = "user-1") => new()
     {
         UserId = userId,
@@ -43,6 +56,7 @@ public class WatchdogJobTests
     public async Task OverdueAutomation_FlipsToOverdueAndOpensExactlyOneAlert()
     {
         await using var db = CreateContext();
+        await AddUserAsync(db);
         var automation = MakeOverdueAutomation();
         db.Automations.Add(automation);
         await db.SaveChangesAsync();
@@ -65,6 +79,7 @@ public class WatchdogJobTests
     public async Task RepeatedScansWhileStillOverdue_DoNotDuplicateAlerts()
     {
         await using var db = CreateContext();
+        await AddUserAsync(db);
         var automation = MakeOverdueAutomation();
         db.Automations.Add(automation);
         await db.SaveChangesAsync();
@@ -86,6 +101,7 @@ public class WatchdogJobTests
     public async Task NewAlertCanOpenAgain_AfterPreviousOneWasResolved()
     {
         await using var db = CreateContext();
+        await AddUserAsync(db);
         var automation = MakeOverdueAutomation();
         db.Automations.Add(automation);
         await db.SaveChangesAsync();
@@ -113,6 +129,7 @@ public class WatchdogJobTests
     public async Task PausedAutomation_IsNeverFlaggedOverdue()
     {
         await using var db = CreateContext();
+        await AddUserAsync(db);
         var automation = MakeOverdueAutomation();
         automation.Status = AutomationStatus.Paused;
         db.Automations.Add(automation);
@@ -133,6 +150,7 @@ public class WatchdogJobTests
     public async Task HealthyAutomation_IsUntouched()
     {
         await using var db = CreateContext();
+        await AddUserAsync(db);
         var automation = MakeOverdueAutomation();
         automation.LastSeenAt = DateTime.UtcNow.AddMinutes(-5);
         db.Automations.Add(automation);
@@ -152,6 +170,7 @@ public class WatchdogJobTests
     public async Task NeverPingedAutomation_IsNotFlaggedOverdue()
     {
         await using var db = CreateContext();
+        await AddUserAsync(db);
         var automation = MakeOverdueAutomation();
         automation.LastSeenAt = null;
         db.Automations.Add(automation);

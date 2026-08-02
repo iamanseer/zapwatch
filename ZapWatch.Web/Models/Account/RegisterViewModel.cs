@@ -10,6 +10,11 @@ public class RegisterViewModel
     public string Email { get; set; } = null!;
 
     [Required]
+    [Phone]
+    [Display(Name = "Phone number (for SMS alerts)")]
+    public string PhoneNumber { get; set; } = null!;
+
+    [Required]
     [StringLength(100, MinimumLength = 8)]
     [DataType(DataType.Password)]
     public string Password { get; set; } = null!;

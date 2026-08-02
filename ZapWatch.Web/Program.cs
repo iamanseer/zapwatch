@@ -59,7 +59,11 @@ builder.Services.AddHangfire(config => config
 
 builder.Services.AddHangfireServer();
 
-builder.Services.AddScoped<IAlertNotifier, NoOpAlertNotifier>();
+builder.Services.Configure<ResendOptions>(builder.Configuration.GetSection("Resend"));
+builder.Services.Configure<TwilioOptions>(builder.Configuration.GetSection("Twilio"));
+builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
+builder.Services.AddHttpClient<ISmsSender, TwilioSmsSender>();
+builder.Services.AddScoped<IAlertNotifier, CompositeAlertNotifier>();
 
 var app = builder.Build();
 

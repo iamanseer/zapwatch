@@ -12,6 +12,7 @@ public class WatchdogJob(ApplicationDbContext db, IAlertNotifier alertNotifier)
         var now = DateTime.UtcNow;
 
         var candidates = await db.Automations
+            .Include(a => a.User)
             .Where(a => a.Status != AutomationStatus.Paused)
             .ToListAsync();
 

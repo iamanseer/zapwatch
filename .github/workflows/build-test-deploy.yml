@@ -60,14 +60,22 @@ jobs:
       - name: Publish
         run: dotnet publish ZapWatch.Web/ZapWatch.Web.csproj --configuration Release --output ./publish
 
-      - name: Inject production connection string
+      - name: Inject production secrets
         shell: pwsh
         env:
           SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM_PHONE_NUMBER: ${{ secrets.TWILIO_FROM_PHONE_NUMBER }}
         run: |
           $path = "./publish/appsettings.json"
           $json = Get-Content $path -Raw | ConvertFrom-Json
           $json.ConnectionStrings.Default = $env:SQL_CONNECTION_STRING
+          $json.Resend.ApiKey = $env:RESEND_API_KEY
+          $json.Twilio.AccountSid = $env:TWILIO_ACCOUNT_SID
+          $json.Twilio.AuthToken = $env:TWILIO_AUTH_TOKEN
+          $json.Twilio.FromPhoneNumber = $env:TWILIO_FROM_PHONE_NUMBER
           $json | ConvertTo-Json -Depth 10 | Set-Content $path
 
       - name: Deploy via MSDeploy

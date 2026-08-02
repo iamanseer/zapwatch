@@ -11,9 +11,10 @@ client automations, not end SMB owners directly.
 ## Source of truth
 - Product scope: `PRD.md`
 - Technical decisions: `TRD.md`
+- Frontend design system (theming, tokens, components): `DESIGN.md`
 - Agent roles and handoff order: `AGENTS.md`
 - Module breakdown, dependencies, and build order: `MODULES.md`
-Do not build anything not traceable to these four files without flagging it as a scope change.
+Do not build anything not traceable to these five files without flagging it as a scope change.
 Work happens module by module — only the module currently kicked off (via a
 `07-MODULE_WISE-PROMPT_GENERATOR.md` prompt) is in scope for a given session.
 
@@ -58,3 +59,6 @@ Anseer.
 - Don't broadcast SignalR status updates to all connected clients — must be scoped per
   authenticated user (see `TRD.md`). Getting this wrong leaks one customer's automation status to
   another customer's browser.
+- Don't invent new colors, buttons, or card styles for a new screen — check `DESIGN.md`'s
+  reusable `zw-*` components first, and never let a status color double as the brand accent or a
+  plain button color.

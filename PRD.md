@@ -33,6 +33,9 @@
 6. If an automation goes quiet past its expected window, get an immediate email + SMS.
 7. Fix it — the next successful ping auto-clears the alert.
 
+UI/UX for this flow (and every screen beyond it) follows `DESIGN.md` — not a separate concern from
+the product spec above.
+
 ## 4. Feature list — v1 only
 | Feature | Why it's in v1 | Cut if time runs out? (Y/N) |
 |---|---|---|

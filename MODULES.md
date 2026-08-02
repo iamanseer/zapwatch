@@ -22,6 +22,8 @@ list — see effort estimates below; both land inside the 3–10 evening-block s
   - AlertEvent dedup / auto-resolve logic (one alert per quiet episode, not one per tick)
   - SignalR hub (`AutomationStatusHub`) + JS client so the dashboard updates live on status
     change, instead of requiring a manual refresh (see `TRD.md`)
+  - Any view or `wwwroot` work in this or later modules follows `DESIGN.md` — reuse existing
+    `zw-*` tokens/components rather than introducing new ones per screen
 - **Depends on** — None. Starts first.
 - **Blocks** — Module 2 (billing needs real automations/accounts to gate; the onboarding doc
   needs a working ping URL to document).
@@ -48,7 +50,8 @@ list — see effort estimates below; both land inside the 3–10 evening-block s
   Anseer's help.
 - **Core details**
   - Razorpay subscription integration + webhook to gate account status
-  - Landing page
+  - Landing page — new visual treatment per `DESIGN.md` §12 (spacious/hero-led, not a copy of the
+    dashboard's dense table-first layout), built on the same token system
   - Zapier "add a webhook step" onboarding doc with screenshots
   - End-to-end deploy to MonsterASP.NET
 - **Depends on** — Module 1 (needs real automations to bill against and document).

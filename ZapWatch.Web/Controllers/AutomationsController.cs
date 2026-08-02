@@ -18,6 +18,7 @@ public class AutomationsController(
     public async Task<IActionResult> Index()
     {
         var automations = await db.Automations
+            .Include(a => a.AlertEvents.OrderByDescending(e => e.TriggeredAt).Take(1))
             .Where(a => a.UserId == CurrentUserId)
             .OrderBy(a => a.Name)
             .ToListAsync();

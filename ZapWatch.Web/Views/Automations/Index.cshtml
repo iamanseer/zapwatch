@@ -23,6 +23,7 @@ else
                 <th>Expected frequency</th>
                 <th>Grace period</th>
                 <th>Last seen</th>
+                <th>Last alert</th>
                 <th>Ping URL</th>
                 <th></th>
             </tr>
@@ -43,6 +44,23 @@ else
                     <td>@item.ExpectedFrequencyMinutes min</td>
                     <td>@item.GracePeriodMinutes min</td>
                     <td>@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                    <td>
+                        @{
+                            var lastAlert = item.AlertEvents.FirstOrDefault();
+                        }
+                        @if (lastAlert is null)
+                        {
+                            <span class="text-muted">&mdash;</span>
+                        }
+                        else if (string.IsNullOrEmpty(lastAlert.Channel))
+                        {
+                            <span class="text-danger" title="Both email and SMS failed">Send failed</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">Sent: @lastAlert.Channel</span>
+                        }
+                    </td>
                     <td><code class="small">@pingUrl</code></td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>

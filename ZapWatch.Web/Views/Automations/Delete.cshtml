@@ -1,0 +1,13 @@
+@model ZapWatch.Web.Models.Automation
+@{
+    ViewData["Title"] = "Delete automation";
+}
+
+<h1>Delete automation</h1>
+
+<p>Are you sure you want to delete <strong>@Model.Name</strong>? This also deletes its ping history and alert history.</p>
+
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

@@ -1,0 +1,55 @@
+@model IEnumerable<ZapWatch.Web.Models.Automation>
+@{
+    ViewData["Title"] = "Automations";
+}
+
+<h1>Automations</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add automation</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No automations yet. Add one to get a ping URL for your Zapier webhook step.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Expected frequency</th>
+                <th>Grace period</th>
+                <th>Last seen</th>
+                <th>Ping URL</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var pingUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/ping/{item.PingToken}";
+                var badgeClass = item.Status switch
+                {
+                    ZapWatch.Web.Models.AutomationStatus.Ok => "bg-success",
+                    ZapWatch.Web.Models.AutomationStatus.Overdue => "bg-danger",
+                    _ => "bg-secondary"
+                };
+                <tr>
+                    <td>@item.Name</td>
+                    <td><span class="badge @badgeClass">@item.Status</span></td>
+                    <td>@item.ExpectedFrequencyMinutes min</td>
+                    <td>@item.GracePeriodMinutes min</td>
+                    <td>@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                    <td><code class="small">@pingUrl</code></td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,36 @@
+@model ZapWatch.Web.Models.Automations.AutomationFormViewModel
+@{
+    ViewData["Title"] = "Edit automation";
+}
+
+<h1>Edit automation</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ExpectedFrequencyMinutes" class="form-label"></label>
+                <input asp-for="ExpectedFrequencyMinutes" class="form-control" />
+                <span asp-validation-for="ExpectedFrequencyMinutes" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="GracePeriodMinutes" class="form-label"></label>
+                <input asp-for="GracePeriodMinutes" class="form-control" />
+                <span asp-validation-for="GracePeriodMinutes" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

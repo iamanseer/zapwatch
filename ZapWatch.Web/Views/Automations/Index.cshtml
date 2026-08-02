@@ -3,75 +3,110 @@
     ViewData["Title"] = "Automations";
 }
 
-<h1>Automations</h1>
-
-<p>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <p class="zw-eyebrow mb-1">Watch list</p>
+        <h1 class="mb-0">Automations</h1>
+    </div>
     <a asp-action="Create" class="btn btn-primary">Add automation</a>
-</p>
+</div>
 
 @if (!Model.Any())
 {
-    <p class="text-muted">No automations yet. Add one to get a ping URL for your Zapier webhook step.</p>
+    <div class="zw-empty">
+        <h3 class="mb-0">Nothing on watch yet</h3>
+        <p>Add an automation to get a ping URL, then point a Webhooks by Zapier step at it to start monitoring.</p>
+        <a asp-action="Create" class="btn btn-primary">Add your first automation</a>
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Expected frequency</th>
-                <th>Grace period</th>
-                <th>Last seen</th>
-                <th>Last alert</th>
-                <th>Ping URL</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                var pingUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/ping/{item.PingToken}";
-                var badgeClass = item.Status switch
-                {
-                    ZapWatch.Web.Models.AutomationStatus.Ok => "bg-success",
-                    ZapWatch.Web.Models.AutomationStatus.Overdue => "bg-danger",
-                    _ => "bg-secondary"
-                };
-                <tr>
-                    <td>@item.Name</td>
-                    <td><span class="badge @badgeClass">@item.Status</span></td>
-                    <td>@item.ExpectedFrequencyMinutes min</td>
-                    <td>@item.GracePeriodMinutes min</td>
-                    <td>@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
-                    <td>
-                        @{
-                            var lastAlert = item.AlertEvents.FirstOrDefault();
-                        }
-                        @if (lastAlert is null)
+    <div class="zw-table-wrap">
+        <div class="table-responsive">
+            <table class="table zw-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Name</th>
+                        <th>Expected every</th>
+                        <th>Grace</th>
+                        <th>Last seen</th>
+                        <th>Last alert</th>
+                        <th>Ping URL</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var pingUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/ping/{item.PingToken}";
+                        string statusClass;
+                        string statusLabel;
+                        if (item.Status == ZapWatch.Web.Models.AutomationStatus.Paused)
                         {
-                            <span class="text-muted">&mdash;</span>
+                            statusClass = "zw-status--paused";
+                            statusLabel = "Paused";
                         }
-                        else if (string.IsNullOrEmpty(lastAlert.Channel))
+                        else if (item.Status == ZapWatch.Web.Models.AutomationStatus.Overdue)
                         {
-                            <span class="text-danger">Send failed</span>
+                            statusClass = "zw-status--overdue";
+                            statusLabel = "Overdue";
+                        }
+                        else if (item.LastSeenAt is null)
+                        {
+                            statusClass = "zw-status--waiting";
+                            statusLabel = "Awaiting first ping";
                         }
                         else
                         {
-                            <span class="text-success">Sent: @lastAlert.Channel</span>
+                            statusClass = "zw-status--ok";
+                            statusLabel = "Live";
                         }
-                        @if (!string.IsNullOrEmpty(lastAlert?.FailureDetails))
-                        {
-                            <br /><span class="text-danger small">@lastAlert.FailureDetails</span>
-                        }
-                    </td>
-                    <td><code class="small">@pingUrl</code></td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <tr>
+                            <td>
+                                <span class="zw-status @statusClass">
+                                    <span class="zw-status-dot"></span>@statusLabel
+                                </span>
+                            </td>
+                            <td class="fw-semibold">@item.Name</td>
+                            <td class="zw-muted">@item.ExpectedFrequencyMinutes min</td>
+                            <td class="zw-muted">@item.GracePeriodMinutes min</td>
+                            <td class="zw-muted">@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                            <td>
+                                @{
+                                    var lastAlert = item.AlertEvents.FirstOrDefault();
+                                }
+                                @if (lastAlert is null)
+                                {
+                                    <span class="zw-muted">&mdash;</span>
+                                }
+                                else if (string.IsNullOrEmpty(lastAlert.Channel))
+                                {
+                                    <span class="zw-alert-fail">Send failed</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--zw-ok);">Sent: @lastAlert.Channel</span>
+                                }
+                                @if (!string.IsNullOrEmpty(lastAlert?.FailureDetails))
+                                {
+                                    <br /><span class="zw-alert-fail small">@lastAlert.FailureDetails</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="zw-ping-url" data-ping-url="@pingUrl">
+                                    <code>@pingUrl</code>
+                                    <button type="button" class="zw-copy-btn" data-copy-target aria-label="Copy ping URL">Copy</button>
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }

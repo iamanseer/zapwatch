@@ -3,32 +3,35 @@
     ViewData["Title"] = "Edit automation";
 }
 
-<h1>Edit automation</h1>
+<p class="zw-eyebrow mb-1">Edit watch</p>
+<h1 class="mb-4">Edit automation</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-            <input type="hidden" asp-for="Id" />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="ExpectedFrequencyMinutes" class="form-label"></label>
-                <input asp-for="ExpectedFrequencyMinutes" class="form-control" />
-                <span asp-validation-for="ExpectedFrequencyMinutes" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="GracePeriodMinutes" class="form-label"></label>
-                <input asp-for="GracePeriodMinutes" class="form-control" />
-                <span asp-validation-for="GracePeriodMinutes" class="text-danger"></span>
-            </div>
+<div class="zw-card zw-form-card p-4">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="form-group mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="ExpectedFrequencyMinutes" class="form-label"></label>
+            <input asp-for="ExpectedFrequencyMinutes" class="form-control" />
+            <div class="form-text">How often this Zap should ping under normal conditions.</div>
+            <span asp-validation-for="ExpectedFrequencyMinutes" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-4">
+            <label asp-for="GracePeriodMinutes" class="form-label"></label>
+            <input asp-for="GracePeriodMinutes" class="form-control" />
+            <div class="form-text">Extra time allowed past the expected window before this counts as overdue.</div>
+            <span asp-validation-for="GracePeriodMinutes" class="text-danger"></span>
+        </div>
+        <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Save</button>
             <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

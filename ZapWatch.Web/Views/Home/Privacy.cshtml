@@ -1,6 +1,73 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
+    ViewData["Description"] = "What ZapWatch collects, which third parties process it, and how to request deletion.";
 }
-<h1 class="mb-3">@ViewData["Title"]</h1>
 
-<p class="zw-muted">Use this page to detail your site's privacy policy.</p>
+<p class="zw-eyebrow mb-1">Privacy Policy</p>
+<h1 class="mb-4">Privacy Policy</h1>
+
+<div class="zw-card p-4 p-md-5" style="max-width:760px;">
+    <p class="zw-muted mb-4" style="font-size:0.9rem;">
+        <strong class="text-body">This is a starter draft written to accurately describe what
+        ZapWatch actually does today &mdash; it is not legal advice.</strong> If you're relying on
+        this for compliance purposes, have it reviewed by someone qualified first.
+    </p>
+
+    <h3>What we collect</h3>
+    <ul>
+        <li><strong>Account info:</strong> your email address, and your phone number if you add one
+            (used only to send SMS alerts).</li>
+        <li><strong>Automation data:</strong> the names you give your monitored automations, their
+            expected-frequency and grace-period settings, and the timestamp of every ping received
+            at your automations' unique ping URLs.</li>
+        <li><strong>Alert history:</strong> when an automation went overdue, when it recovered,
+            which channels (email/SMS) were notified, and details of any failed send.</li>
+        <li><strong>Billing status:</strong> your plan, subscription status, and Razorpay
+            subscription ID. We never see or store your card details &mdash; those go directly to
+            Razorpay.</li>
+    </ul>
+    <p class="zw-muted" style="font-size:0.9rem;">
+        We don't see the contents of the Zaps you're monitoring &mdash; only that a ping arrived
+        and when. The "Webhooks by Zapier" step you add per the <a asp-controller="Home" asp-action="Onboarding">onboarding guide</a>
+        doesn't need to send us any of your Zap's actual data.
+    </p>
+
+    <h3>Third parties that process your data</h3>
+    <ul>
+        <li><strong>Razorpay</strong> &mdash; processes your payment when you subscribe. Handles
+            your card/payment details directly; we only receive a subscription ID and status.</li>
+        <li><strong>Twilio</strong> (SMS alerts during build/early operation; migrating to an
+            India-focused provider such as MSG91 once live, per our own build notes) &mdash; sends
+            the SMS alert text and your phone number to deliver it.</li>
+        <li><strong>Resend</strong> &mdash; sends transactional email: alerts, signup verification,
+            and password reset links. Receives your email address and the message content.</li>
+        <li><strong>Google</strong> &mdash; if you choose "Continue with Google" to sign in, Google
+            shares your email address with us to match or create your account. We don't request
+            access to anything else in your Google account.</li>
+        <li><strong>MonsterASP.NET</strong> &mdash; our hosting provider. All application data,
+            including the database described above, lives on their infrastructure.</li>
+    </ul>
+
+    <h3>How long we keep it</h3>
+    <p>
+        Account, automation, ping, and alert data is kept for as long as your account is active.
+        There's no automatic deletion job running yet for old ping/alert history &mdash; we intend
+        to add a rolling retention window for that data, but as of today it's retained
+        indefinitely alongside the rest of your account. Deleting an automation from your
+        dashboard immediately deletes its ping and alert history along with it.
+    </p>
+
+    <h3>Your rights / requesting deletion</h3>
+    <p>
+        There's no self-serve "delete my account" button yet. To request deletion of your account
+        and all associated data, email us at
+        <a href="mailto:iamanseernk@gmail.com">iamanseernk@gmail.com</a> from the address on your
+        account and we'll delete it manually. We'll confirm once it's done.
+    </p>
+
+    <h3>Changes to this policy</h3>
+    <p class="mb-0">
+        If what we collect or who we share it with changes, we'll update this page. Check back
+        periodically if that matters to you.
+    </p>
+</div>

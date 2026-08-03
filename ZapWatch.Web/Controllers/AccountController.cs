@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ public class AccountController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     IEmailSender emailSender,
+    IAuthenticationSchemeProvider schemeProvider,
     ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
@@ -246,27 +248,42 @@ public class AccountController(
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+    public async Task<IActionResult> ExternalLogin(string provider, string? returnUrl = null)
     {
-        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+        // The sign-in buttons only render for registered schemes (see _ExternalSignInButtons.cshtml),
+        // but this action is reachable directly by URL - guard against Challenge() throwing for a
+        // provider that isn't configured/registered instead of a bare 500 for that one request.
+        if (await schemeProvider.GetSchemeAsync(provider) is null)
+        {
+            TempData["ExternalLoginError"] = $"{provider} sign-in isn't available right now.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl, provider });
         var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, provider);
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+    public async Task<IActionResult> ExternalLoginCallback(
+        string? returnUrl = null, string? remoteError = null, string? provider = null)
     {
+        // Scheme names ("Google"/"Microsoft"/"GitHub") already read as display names - no
+        // separate display-name map needed. Passed through as a route value from ExternalLogin
+        // since it isn't otherwise known until after GetExternalLoginInfoAsync() succeeds below.
+        var providerName = string.IsNullOrEmpty(provider) ? "that provider" : provider;
+
         if (remoteError != null)
         {
-            TempData["ExternalLoginError"] = "Something went wrong signing in with Google. Please try again.";
+            TempData["ExternalLoginError"] = $"Something went wrong signing in with {providerName}. Please try again.";
             return RedirectToAction(nameof(Login));
         }
 
         var info = await signInManager.GetExternalLoginInfoAsync();
         if (info is null)
         {
-            TempData["ExternalLoginError"] = "Something went wrong signing in with Google. Please try again.";
+            TempData["ExternalLoginError"] = $"Something went wrong signing in with {providerName}. Please try again.";
             return RedirectToAction(nameof(Login));
         }
 
@@ -286,7 +303,7 @@ public class AccountController(
         var email = info.Principal.FindFirstValue(ClaimTypes.Email);
         if (string.IsNullOrEmpty(email))
         {
-            TempData["ExternalLoginError"] = "Google didn't share an email address, so we can't sign you in.";
+            TempData["ExternalLoginError"] = $"{info.LoginProvider} didn't share an email address, so we can't sign you in.";
             return RedirectToAction(nameof(Login));
         }
 
@@ -294,7 +311,7 @@ public class AccountController(
         var isNewUser = user is null;
         if (user is null)
         {
-            // Google has already verified this email, unlike a local signup's address.
+            // The external provider has already verified this email, unlike a local signup's address.
             user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
             var createResult = await userManager.CreateAsync(user);
             if (!createResult.Succeeded)
@@ -304,18 +321,18 @@ public class AccountController(
             }
         }
 
-        // Link this Google identity to the (new or pre-existing local) account by email.
+        // Link this external identity to the (new or pre-existing local) account by email.
         var addLoginResult = await userManager.AddLoginAsync(user, info);
         if (!addLoginResult.Succeeded)
         {
-            TempData["ExternalLoginError"] = "Couldn't link your Google account. Please try again.";
+            TempData["ExternalLoginError"] = $"Couldn't link your {info.LoginProvider} account. Please try again.";
             return RedirectToAction(nameof(Login));
         }
 
         await signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
 
-        // SMS alerts need a phone number, which Google sign-in never supplies - nudge new
-        // accounts to add one instead of silently leaving that half of the alert path dark.
+        // SMS alerts need a phone number, which none of the external sign-in providers supply -
+        // nudge new accounts to add one instead of silently leaving that half of the alert path dark.
         if (isNewUser && string.IsNullOrEmpty(user.PhoneNumber))
         {
             TempData["WelcomeNeedsPhone"] = "true";
@@ -344,7 +361,7 @@ public class AccountController(
         }
 
         var logins = await userManager.GetLoginsAsync(user);
-        ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+        ViewBag.LinkedProviders = logins.Select(l => l.LoginProvider).ToList();
         ViewBag.HasPassword = await userManager.HasPasswordAsync(user);
 
         return View(new ProfileViewModel
@@ -370,7 +387,7 @@ public class AccountController(
         if (!ModelState.IsValid)
         {
             var logins = await userManager.GetLoginsAsync(user);
-            ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+            ViewBag.LinkedProviders = logins.Select(l => l.LoginProvider).ToList();
             ViewBag.HasPassword = await userManager.HasPasswordAsync(user);
             return View(model);
         }
@@ -403,7 +420,7 @@ public class AccountController(
         if (!ModelState.IsValid)
         {
             var logins = await userManager.GetLoginsAsync(user);
-            ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+            ViewBag.LinkedProviders = logins.Select(l => l.LoginProvider).ToList();
             ViewBag.HasPassword = hasPassword;
             ViewBag.ChangePasswordModel = model;
             return View(nameof(Profile), new ProfileViewModel
@@ -426,7 +443,7 @@ public class AccountController(
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             var logins = await userManager.GetLoginsAsync(user);
-            ViewBag.IsGoogleLinked = logins.Any(l => l.LoginProvider == "Google");
+            ViewBag.LinkedProviders = logins.Select(l => l.LoginProvider).ToList();
             ViewBag.HasPassword = hasPassword;
             ViewBag.ChangePasswordModel = model;
             return View(nameof(Profile), new ProfileViewModel

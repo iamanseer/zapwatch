@@ -1,5 +1,12 @@
 # PRODUCT-VALIDATION.md — ZapWatch
 
+> **Since this was written**: items 3 (brand-color fix) and 4 (landing page rebuild) in §3's list
+> have both shipped — see `MODULES.md` Module 3. Item 2 (the three `TRD.md` §8 blockers) and item
+> 1 (run the outreach) have **not** moved — this doc's core point, that the market-risk question
+> is still completely open regardless of how much engineering has shipped since, is still exactly
+> as true today. Kept as-is below rather than edited, since re-litigating a dated honest-assessment
+> doc after the fact would undercut the point of writing one.
+
 Honest state-of-things, not a status report dressed up as one. Split into what's actually
 verified vs. what's still assumed, because those two lists have gotten blurred together across
 `MODULES.md`'s "Done" checkmarks.

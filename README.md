@@ -35,9 +35,10 @@ Independent Zapier/Make automation freelancers and 1–3 person automation agenc
 - ✅ Marketing site: landing page, pricing, how-it-works, About Us, Privacy Policy
 - ✅ SEO baseline: per-page meta tags, OG/Twitter, JSON-LD, robots.txt, sitemap.xml
 
-See `MODULES.md`'s Module 3 for the full pre-launch-polish build-out and its two open follow-up
-slices (Microsoft/GitHub OAuth credentials still need registering; the automations-list view
-still needs its own readability pass).
+See `MODULES.md`'s Module 3 for the full pre-launch-polish build-out. Both follow-up slices are
+code-complete: the automations-list readability pass shipped, and Microsoft/GitHub sign-in only
+needs Anseer to register real OAuth app credentials before those two providers' buttons appear
+(their absence is inert, not a bug — see the incident writeup in `MODULES.md`).
 
 ## Explicitly Out of Scope for v1
 

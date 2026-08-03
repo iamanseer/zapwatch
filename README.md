@@ -21,16 +21,23 @@ Independent Zapier/Make automation freelancers and 1–3 person automation agenc
 
 ## v1 Features
 
-- ✅ Signup/login
+- ✅ Signup/login, plus sign-in with Google, Microsoft, or GitHub
+- ✅ Email verification, forgot/change password (with "set a password" for OAuth-only accounts)
 - ✅ Automation CRUD (name, expected frequency, grace period, unique ping URL)
 - ✅ Ping ingestion endpoint
 - ✅ Hangfire-based watchdog scheduler
 - ✅ Email alerts via Resend
 - ✅ SMS alerts via Twilio
-- ✅ Razorpay subscription billing (tiered by automation count)
+- ✅ Razorpay subscription billing (tiered by automation count), with an active-subscription view
 - ✅ Live-updating dashboard via SignalR
 - ✅ Zapier onboarding documentation
 - ✅ Per-automation grace periods & quiet hours
+- ✅ Marketing site: landing page, pricing, how-it-works, About Us, Privacy Policy
+- ✅ SEO baseline: per-page meta tags, OG/Twitter, JSON-LD, robots.txt, sitemap.xml
+
+See `MODULES.md`'s Module 3 for the full pre-launch-polish build-out and its two open follow-up
+slices (Microsoft/GitHub OAuth credentials still need registering; the automations-list view
+still needs its own readability pass).
 
 ## Explicitly Out of Scope for v1
 
@@ -59,6 +66,7 @@ Independent Zapier/Make automation freelancers and 1–3 person automation agenc
 
 - **PRD.md** — Product requirements, user stories, feature list, monetization, timeline
 - **TRD.md** — Technical decisions, stack rationale, data model, key integrations
+- **DESIGN.md** — Frontend design system: theming, tokens, reusable components
 - **MODULES.md** — Module breakdown, dependencies, effort estimates, build order
 - **CLAUDE.md** — Builder constraints, working agreement, definition of done
 - **AGENTS.md** — Build team roles (Planner, Engineer, QA, Reviewer) and handoff protocol
@@ -69,6 +77,7 @@ Independent Zapier/Make automation freelancers and 1–3 person automation agenc
 |-----------|--------|--------|
 | Core monitoring engine working end-to-end | 7–9 evening-blocks | Week 1–2 |
 | Billing + onboarding doc + deploy | 2–3 evening-blocks + 2 Saturday-blocks | Week 2–3 |
+| Pre-launch polish (restyle, social sign-in, auth completeness, SEO) | ~15–19 evening-blocks | Post-launch-readiness |
 | First paying customer | — | Week 3–4 |
 
 **Build constraints:** Solo builder, weekday 8:00–10:30 PM + up to 3 hrs Saturday. No multi-day continuous work.

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ public class AccountController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     IEmailSender emailSender,
+    IAuthenticationSchemeProvider schemeProvider,
     ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
@@ -246,8 +248,17 @@ public class AccountController(
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+    public async Task<IActionResult> ExternalLogin(string provider, string? returnUrl = null)
     {
+        // The sign-in buttons only render for registered schemes (see _ExternalSignInButtons.cshtml),
+        // but this action is reachable directly by URL - guard against Challenge() throwing for a
+        // provider that isn't configured/registered instead of a bare 500 for that one request.
+        if (await schemeProvider.GetSchemeAsync(provider) is null)
+        {
+            TempData["ExternalLoginError"] = $"{provider} sign-in isn't available right now.";
+            return RedirectToAction(nameof(Login));
+        }
+
         var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl, provider });
         var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, provider);

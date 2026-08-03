@@ -1,49 +1,72 @@
 @model string
+@inject Microsoft.AspNetCore.Authentication.IAuthenticationSchemeProvider SchemeProvider
 @{
     // Google/Microsoft brand guidelines require their unmodified, official multi-color marks on
     // sign-in buttons - those hex values are each provider's own, not a ZapWatch design token, so
     // they're exempt from the --zw-* token rule the same way the Razorpay checkout widget is.
     // GitHub's mark is single-color, so it uses currentColor and reads through the normal text
     // tokens in both themes instead of needing that exemption.
+
+    // Only show a button for a provider that's actually registered (Program.cs only registers
+    // Google/Microsoft/GitHub once real credentials are configured - see the incident notes in
+    // MODULES.md for why an unconditionally-registered scheme with an empty ClientId took the
+    // whole site down). Checking the real registered schemes here, rather than re-deriving the
+    // same "is this configured" logic a second time, keeps this in sync with Program.cs by
+    // construction instead of by convention.
+    var googleEnabled = await SchemeProvider.GetSchemeAsync("Google") is not null;
+    var microsoftEnabled = await SchemeProvider.GetSchemeAsync("Microsoft") is not null;
+    var githubEnabled = await SchemeProvider.GetSchemeAsync("GitHub") is not null;
 }
-<div class="d-flex align-items-center gap-2 my-3">
-    <hr class="flex-grow-1 my-0" style="border-color:var(--zw-line);" />
-    <span class="zw-muted" style="font-size:0.8rem;">or</span>
-    <hr class="flex-grow-1 my-0" style="border-color:var(--zw-line);" />
-</div>
-<div class="d-flex flex-column gap-2">
-    <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google" asp-route-returnUrl="@Model"
-       class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z" />
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z" />
-            <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.88 12c0-.79.14-1.56.39-2.28V6.63H1.29A11.96 11.96 0 0 0 0 12c0 1.93.46 3.76 1.29 5.37l3.98-3.09z" />
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.63l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
-        </svg>
-        Continue with Google
-    </a>
-    <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Microsoft" asp-route-returnUrl="@Model"
-       class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
-        <svg width="16" height="16" viewBox="0 0 21 21" aria-hidden="true">
-            <rect x="1" y="1" width="9" height="9" fill="#F25022" />
-            <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
-            <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
-            <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
-        </svg>
-        Continue with Microsoft
-    </a>
-    <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="GitHub" asp-route-returnUrl="@Model"
-       class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
-                     0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
-                     -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
-                     .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
-                     -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09
-                     2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15
-                     0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2
-                     0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
-        </svg>
-        Continue with GitHub
-    </a>
-</div>
+@if (googleEnabled || microsoftEnabled || githubEnabled)
+{
+    <div class="d-flex align-items-center gap-2 my-3">
+        <hr class="flex-grow-1 my-0" style="border-color:var(--zw-line);" />
+        <span class="zw-muted" style="font-size:0.8rem;">or</span>
+        <hr class="flex-grow-1 my-0" style="border-color:var(--zw-line);" />
+    </div>
+    <div class="d-flex flex-column gap-2">
+        @if (googleEnabled)
+        {
+            <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google" asp-route-returnUrl="@Model"
+               class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z" />
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z" />
+                    <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.88 12c0-.79.14-1.56.39-2.28V6.63H1.29A11.96 11.96 0 0 0 0 12c0 1.93.46 3.76 1.29 5.37l3.98-3.09z" />
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.63l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+                </svg>
+                Continue with Google
+            </a>
+        }
+        @if (microsoftEnabled)
+        {
+            <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Microsoft" asp-route-returnUrl="@Model"
+               class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 21 21" aria-hidden="true">
+                    <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+                    <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+                    <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+                    <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+                </svg>
+                Continue with Microsoft
+            </a>
+        }
+        @if (githubEnabled)
+        {
+            <a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="GitHub" asp-route-returnUrl="@Model"
+               class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                             0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+                             -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+                             .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+                             -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09
+                             2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15
+                             0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2
+                             0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+                </svg>
+                Continue with GitHub
+            </a>
+        }
+    </div>
+}

@@ -51,26 +51,47 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/Login";
 });
 
-// Empty ClientId/ClientSecret is fine at startup - OAuthOptions only validates them lazily,
-// the first time someone actually hits /signin-google. Real values come from GitHub Actions
-// secrets at deploy time (see build-test-deploy.yml), same pattern as Resend/Twilio/Razorpay.
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
+// An OAuth scheme's options get validated by AuthenticationMiddleware on every single incoming
+// request (not just sign-in attempts) - if ClientId/ClientSecret are empty, OAuthOptions.Validate()
+// throws ArgumentException on every request, crashing the entire site (confirmed live 2026-08-03,
+// see incident notes in MODULES.md). Google's secret has always been real, so this never surfaced
+// there; Microsoft/GitHub don't have real secrets yet, so those two schemes are only registered
+// once their config is actually present - real values come from GitHub Actions secrets at deploy
+// time (see build-test-deploy.yml), same pattern as Resend/Twilio/Razorpay.
+var authBuilder = builder.Services.AddAuthentication();
+
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    authBuilder.AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
         options.CallbackPath = "/signin-google";
-    })
-    .AddMicrosoftAccount(options =>
+    });
+}
+
+var microsoftClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+var microsoftClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
+{
+    authBuilder.AddMicrosoftAccount(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "";
+        options.ClientId = microsoftClientId;
+        options.ClientSecret = microsoftClientSecret;
         options.CallbackPath = "/signin-microsoft";
-    })
-    .AddGitHub(options =>
+    });
+}
+
+var githubClientId = builder.Configuration["Authentication:GitHub:ClientId"];
+var githubClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
+if (!string.IsNullOrEmpty(githubClientId) && !string.IsNullOrEmpty(githubClientSecret))
+{
+    authBuilder.AddGitHub(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "";
+        options.ClientId = githubClientId;
+        options.ClientSecret = githubClientSecret;
         options.CallbackPath = "/signin-github";
         options.Scope.Add("user:email");
 
@@ -107,6 +128,7 @@ builder.Services.AddAuthentication()
             }
         };
     });
+}
 
 builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

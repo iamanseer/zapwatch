@@ -125,7 +125,7 @@ referencing it — written up here after the fact, from the actual shipped commi
   slice 2 below.
 - **Build order priority** — Done.
 
-### Follow-up slice 1 — Microsoft + GitHub sign-in — Done (code); credentials outstanding
+### Follow-up slice 1 — Microsoft + GitHub sign-in — Done
 Added 2026-08-02, Anseer request, extending the already-shipped Google sign-in slice above.
 Google's `ExternalLogin`/`ExternalLoginCallback` flow in `AccountController.cs` was already
 provider-agnostic; this slice added `Microsoft.AspNetCore.Authentication.MicrosoftAccount` and the
@@ -133,13 +133,37 @@ aspnet-contrib `AspNet.Security.OAuth.GitHub` package alongside it (including a 
 `/user/emails` fallback for accounts with no public email), generalized the two Google-hardcoded
 error messages and the `ViewBag.IsGoogleLinked` flag (now `ViewBag.LinkedProviders`), and replaced
 the single-button `_GoogleSignInButton` partial with `_ExternalSignInButtons` (one divider, three
-buttons). No migration needed. **Bottleneck**: Anseer needs to register an Azure AD app and a
-GitHub OAuth App and add four new GitHub Actions secrets
-(`MICROSOFT_CLIENT_ID`/`MICROSOFT_CLIENT_SECRET`, `OAUTH_GITHUB_CLIENT_ID`/
-`OAUTH_GITHUB_CLIENT_SECRET` — note the `OAUTH_` prefix, GitHub Actions rejects a `GITHUB_`-
-prefixed secret name) before either provider can be exercised end-to-end.
-- **Effort estimate** — ~1 evening-block.
-- **Build order priority** — Done (code); credential setup outstanding, external to this repo.
+buttons). No migration needed.
+
+**Incident, 2026-08-03**: the first two attempts to ship this (deploys for what became PR #15 and
+a re-ship as #18) took production down completely — every route returned a bare 500, including
+static files. Root cause, confirmed from a captured stdout log (`ZapWatch.Web/web.config`'s
+temporary `stdoutLogEnabled=true`, added specifically to catch this): ASP.NET Core's
+`AuthenticationMiddleware` validates *every registered scheme's* options on *every single
+request*, not just sign-in attempts. Registering `AddMicrosoftAccount`/`AddGitHub` unconditionally
+with an empty `ClientId` (no real secrets existed yet) meant `OAuthOptions.Validate()` threw
+`ArgumentException: The value cannot be an empty string. (Parameter 'ClientId')` on every request.
+Google never surfaced this because its secret was real from day one — the "validates lazily on
+first sign-in" assumption in the original code comment was simply wrong, just never tested against
+an actually-empty credential until now. Fixed by only calling `AddGoogle`/`AddMicrosoftAccount`/
+`AddGitHub` when their `ClientId`/`ClientSecret` are both non-empty (`Program.cs`), hiding the
+corresponding sign-in button when a scheme isn't registered
+(`_ExternalSignInButtons.cshtml`, via `IAuthenticationSchemeProvider`), and guarding
+`AccountController.ExternalLogin` against a direct hit for an unregistered provider. Covered by
+`ZapWatch.Tests/ExternalAuthenticationConfigurationTests.cs`, which reproduces the exact crash
+mechanism (`IOptionsMonitor<T>.Get()` throwing for an empty-ClientId scheme) and confirms the
+conditional-registration fix avoids it — this is the one piece of this incident that *is* now
+under automated test, specifically because `dotnet build`/`dotnet test` gave zero signal of the
+bug both times it shipped broken.
+
+**Bottleneck (unchanged)**: Anseer needs to register an Azure AD app and a GitHub OAuth App and
+add four new GitHub Actions secrets (`MICROSOFT_CLIENT_ID`/`MICROSOFT_CLIENT_SECRET`,
+`OAUTH_GITHUB_CLIENT_ID`/`OAUTH_GITHUB_CLIENT_SECRET` — note the `OAUTH_` prefix, GitHub Actions
+rejects a `GITHUB_`-prefixed secret name) before either provider is actually usable — but with
+this fix, their absence is now inert (button hidden, no crash) rather than fatal.
+- **Effort estimate** — ~1 evening-block (was ~3, including incident response).
+- **Build order priority** — Done. Credential setup outstanding, external to this repo, no longer
+  blocking or risky.
 
 ### Follow-up slice 2 — Automations-list readability pass — ✅ Done
 Closes out the automations half of the "Automation & billing view design pass" line item that

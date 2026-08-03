@@ -110,9 +110,11 @@ referencing it — written up here after the fact, from the actual shipped commi
   - **About Us page**: extends the founder-note voice from the landing page.
   - **SEO baseline**: per-page `ViewData`-driven meta tags, OG/Twitter tags, one JSON-LD block on
     the landing page, `robots.txt`, a `sitemap.xml` controller action, SignalR CDN script deferred
-    off every non-dashboard page. Full detail in `SEO-PLAN.md`; §5 (Search Console/Bing
-    verification) and §6 (first long-tail content piece) are the two parts of that plan not yet
-    done — both need Anseer to create external properties/write content, not more code.
+    off every non-dashboard page — implementation detail for this part is now just the live code
+    (`_Layout.cshtml`, `HomeController.cs`), not a separate doc. `SEO-PLAN.md` has been trimmed
+    down to just its two still-open items, §5 (Search Console/Bing verification) and §6 (first
+    long-tail content piece) — both need Anseer to create external properties/write content, not
+    more code.
 - **Depends on** — Module 1 and Module 2 (touched existing auth, views, `site.css` directly).
 - **Blocks** — Nothing scheduled downstream; `LAUNCH-PLAN.md`'s go-live checklist no longer waits
   on this module (brand-color fix row updated there too).

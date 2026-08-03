@@ -114,7 +114,9 @@ pill), `.zw-empty` (empty state), `.zw-eyebrow` (small monospace section label),
 `.zw-copy-btn` (copyable value with clipboard button), `.zw-form-card` (auth/CRUD form shell),
 `.zw-flow-step` (numbered process step, only for content that's a genuine sequence),
 `.zw-theme-toggle` (the nav sun/moon button), `.zw-screenshot-slot` (dashed placeholder box for
-doc content awaiting a real screenshot).
+doc content awaiting a real screenshot), `.zw-text-ok` / `.zw-alert-fail` (small inline status-
+colored text — e.g. "Sent: email" vs. "Send failed" — for text that needs a status color but isn't
+a full `.zw-status` pill; always reach for one of these two over an inline `style="color: ..."`).
 
 ## 10. Motion budget: one signature, spent already
 

@@ -27,4 +27,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- ANCM's stdout logging (see web.config) writes into .\logs but won't create the folder
+         itself - this placeholder just forces the empty directory to exist in the publish output. -->
+    <Content Include="logs\.gitkeep">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

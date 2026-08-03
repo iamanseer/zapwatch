@@ -82,7 +82,7 @@ doc).
   account is still outstanding and remains the real blocker before charging real customers — the
   above is all built and verified against Razorpay test mode.
 
-## Module 3: Pre-Launch Polish — ✅ Done (+ 1 follow-up slice)
+## Module 3: Pre-Launch Polish — ✅ Done (+ 1 open follow-up slice)
 Built and merged via PRs #1–14 on `worktree-module3-prelaunch-polish` (plus a same-day sitemap.xml
 regression fix). This file wasn't updated at the time despite several of those commit messages
 referencing it — written up here after the fact, from the actual shipped commits, not a plan.
@@ -103,9 +103,7 @@ referencing it — written up here after the fact, from the actual shipped commi
   - **Billing view design pass + active-subscription state**: billing page now conditionally
     renders an active subscriber's real plan/status. **Caveat carried into the follow-up slice
     below**: `PRD.md` §10's line item was "Automation **& billing** view design pass" — only the
-    billing half actually shipped. `Views/Automations/Index.cshtml` is unchanged from before this
-    module (confirmed by diff) and still has the readability problems flagged after this module
-    closed — see the follow-up slice.
+    billing half actually shipped at the time.
   - **Privacy Policy page**: real content — what's collected, which third parties process it
     (Razorpay, Twilio/MSG91, Resend, Google, MonsterASP.NET), contact/deletion process. Starter
     draft, not legal advice.
@@ -122,48 +120,53 @@ referencing it — written up here after the fact, from the actual shipped commi
   directly, as flagged; no lockout regression reported. Email verification/forgot-password send
   real emails — exercised against real inboxes per the module's own risk note.
 - **Effort estimate** — ~15–19 evening-blocks, matching the pre-build estimate.
-- **Done condition** — Met for everything except the automations-list half of the view-design-pass
-  line item (see follow-up slice) and `SEO-PLAN.md` §5/§6 (external, not code).
+- **Done condition** — Met for everything except `SEO-PLAN.md` §5/§6 (external, not code). The
+  automations-list half of the view-design-pass line item is now also closed — see follow-up
+  slice 2 below.
 - **Build order priority** — Done.
 
-### Follow-up slice 1 — Microsoft + GitHub sign-in
-Added 2026-08-02, Anseer request, extending the already-shipped Google sign-in slice above (see
-`PRD.md` §10 scope-change entry). Google's `ExternalLogin`/`ExternalLoginCallback` flow in
-`AccountController.cs` was already provider-agnostic; this slice added
-`Microsoft.AspNetCore.Authentication.MicrosoftAccount` and the aspnet-contrib
-`AspNet.Security.OAuth.GitHub` package alongside it (including a GitHub-specific `/user/emails`
-fallback for accounts with no public email), generalized the two Google-hardcoded error messages
-and the `ViewBag.IsGoogleLinked` flag (now `ViewBag.LinkedProviders`, supporting more than one
-linked provider per account), and replaced the single-button `_GoogleSignInButton` partial with
-`_ExternalSignInButtons` (one divider, three buttons). No migration needed — `AspNetUserLogins`
-already existed. **Bottleneck**: Anseer needs to register an Azure AD app and a GitHub OAuth App
-(redirect URIs for both prod and local dev) and add four new GitHub Actions secrets
-(`MICROSOFT_CLIENT_ID`/`MICROSOFT_CLIENT_SECRET`, and — note the naming, GitHub Actions rejects a
-`GITHUB_`-prefixed secret name — `OAUTH_GITHUB_CLIENT_ID`/`OAUTH_GITHUB_CLIENT_SECRET`) before
-either provider can be exercised end-to-end; code is done and builds clean, sign-in itself is
-untested against real accounts pending those credentials.
+### Follow-up slice 1 — Microsoft + GitHub sign-in — Done (code); credentials outstanding
+Added 2026-08-02, Anseer request, extending the already-shipped Google sign-in slice above.
+Google's `ExternalLogin`/`ExternalLoginCallback` flow in `AccountController.cs` was already
+provider-agnostic; this slice added `Microsoft.AspNetCore.Authentication.MicrosoftAccount` and the
+aspnet-contrib `AspNet.Security.OAuth.GitHub` package alongside it (including a GitHub-specific
+`/user/emails` fallback for accounts with no public email), generalized the two Google-hardcoded
+error messages and the `ViewBag.IsGoogleLinked` flag (now `ViewBag.LinkedProviders`), and replaced
+the single-button `_GoogleSignInButton` partial with `_ExternalSignInButtons` (one divider, three
+buttons). No migration needed. **Bottleneck**: Anseer needs to register an Azure AD app and a
+GitHub OAuth App and add four new GitHub Actions secrets
+(`MICROSOFT_CLIENT_ID`/`MICROSOFT_CLIENT_SECRET`, `OAUTH_GITHUB_CLIENT_ID`/
+`OAUTH_GITHUB_CLIENT_SECRET` — note the `OAUTH_` prefix, GitHub Actions rejects a `GITHUB_`-
+prefixed secret name) before either provider can be exercised end-to-end.
 - **Effort estimate** — ~1 evening-block.
 - **Build order priority** — Done (code); credential setup outstanding, external to this repo.
 
-### Follow-up slice 2 — Automations-list readability pass — Not started
-Closes out the automations half of the "Automation & billing view design pass" line item that the
-context above found was never actually delivered. Diagnosis (from
-`Views/Automations/Index.cshtml` + `site.css`): 8 columns crammed edge-to-edge with no responsive
-collapse; the ping-URL cell has no real max-width so it stretches the row instead of eliding; the
-"Last alert" cell mixes an inline `style="color: var(--zw-ok)"` (against `DESIGN.md`'s own
-token rule) with an optional second line; "Expected every"/"Grace" show raw minutes instead of
-human-readable durations. Proposed direction (not yet approved for build): cap the ping-URL
-column width, merge "Expected every"/"Grace" into one human-formatted "Check window" column,
-replace the inline color style with a token class, collapse "Last alert" to one line, and
-consider a card-based collapse below a breakpoint reusing `.zw-card` instead of horizontal scroll.
-Keeps the shared `.zw-table`/`.zw-table-wrap` shell untouched — Billing/Subscription reuses it too.
-- **Effort estimate** — ~1 evening-block once a direction is picked.
-- **Build order priority** — Next, pending Anseer's go-ahead on the proposed direction.
+### Follow-up slice 2 — Automations-list readability pass — ✅ Done
+Closes out the automations half of the "Automation & billing view design pass" line item that
+Follow-up slice 1's context found was never actually delivered. Shipped: capped the ping-URL
+column to a fixed max-width with a `title` tooltip carrying the full URL (and fixed a real bug
+along the way — `.zw-ping-url code`'s `text-overflow:ellipsis` never actually triggered, because a
+flex child's default `min-width:auto` blocks shrinking below content size; added `min-width:0` to
+both the flex container and the child); merged "Expected every"/"Grace" into one human-formatted
+"Check window" column (`FormatMinutes` helper - "1 hr 30 min" instead of "90 min"); replaced the
+inline `style="color: var(--zw-ok)"` with a new `.zw-text-ok` token class next to the existing
+`.zw-alert-fail`; collapsed "Last alert" to one line per row (partial-failure detail — a channel
+succeeded while another failed — moved into a `title` tooltip instead of a second stacked line,
+preserving that information rather than hiding it); and, instead of a full parallel card-based
+template (more engineering than the rest of this slice combined for a "consider" item), used
+Bootstrap's `d-none d-md-table-cell` to hide the two more secondary columns (Check window, Last
+seen) below the `md` breakpoint so narrow screens don't force horizontal scroll just to read
+status/name/alert/ping URL. Verified visually in both themes and at a sub-`md` viewport width
+using a static harness against the real `site.css` (no local SQL Server available to click through
+the live authenticated page). Shared `.zw-table`/`.zw-table-wrap` shell untouched — Billing/
+Subscription reuses it too.
+- **Effort estimate** — ~1 evening-block.
+- **Build order priority** — Done.
 
 ## Module dependency map
 `M1 (Core Monitoring Engine) → M2 (Monetization & Launch) → M3 (Pre-Launch Polish)`
 
-## Suggested build order (historical — M1–M3 all done except the two M3 follow-up slices above)
+## Suggested build order (historical — M1–M3 all done; both M3 follow-up slices done except Microsoft/GitHub credential setup)
 The day-0 smoke test comes before anything else, full stop — it's an hour of work that either
 confirms the hosting decision or forces a replan while the cost of being wrong is still small.
 After that, M1 — it's the entire risk surface of v1 (the watchdog logic is the one piece of "this
@@ -173,6 +176,5 @@ parallel with M1 so it isn't sitting on the critical path when M2 starts.
 
 Actual order followed this exactly. What's left before real customers: Razorpay live-mode KYC, a
 Twilio account upgrade (SMS is in trial-mode restriction), a real-browser Checkout.js click-through,
-real screenshots for the onboarding doc, Microsoft/GitHub OAuth app credentials (Follow-up slice 1
-above), Search Console/Bing verification + a first long-tail content piece (`SEO-PLAN.md` §5–6),
-and a decision on the automations-list readability direction (Follow-up slice 2 above).
+real screenshots for the onboarding doc, Microsoft/GitHub OAuth app credentials, and Search
+Console/Bing verification + a first long-tail content piece (`SEO-PLAN.md` §5–6).

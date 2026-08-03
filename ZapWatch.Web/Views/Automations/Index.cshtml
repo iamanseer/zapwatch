@@ -8,22 +8,6 @@
     var limit = (int)ViewData["AutomationLimit"]!;
 }
 
-@functions {
-    // "1440" reads as a lookup problem, not a duration - this is the one place that matters,
-    // since Expected-every/Grace are set once at Create/Edit but read constantly on this list.
-    private static string FormatMinutes(int minutes)
-    {
-        if (minutes < 60)
-        {
-            return $"{minutes} min";
-        }
-
-        var hours = minutes / 60;
-        var remainder = minutes % 60;
-        return remainder == 0 ? $"{hours} hr" : $"{hours} hr {remainder} min";
-    }
-}
-
 <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
     <div>
         <p class="zw-eyebrow mb-1">Watch list</p>
@@ -52,13 +36,14 @@ else
 {
     <div class="zw-table-wrap">
         <div class="table-responsive">
-            <table class="table zw-table zw-automations-table align-middle">
+            <table class="table zw-table align-middle">
                 <thead>
                     <tr>
                         <th>Status</th>
                         <th>Name</th>
-                        <th class="d-none d-md-table-cell">Check window</th>
-                        <th class="d-none d-md-table-cell">Last seen</th>
+                        <th>Expected every</th>
+                        <th>Grace</th>
+                        <th>Last seen</th>
                         <th>Last alert</th>
                         <th>Ping URL</th>
                         <th></th>
@@ -97,8 +82,9 @@ else
                                 </span>
                             </td>
                             <td class="fw-semibold">@item.Name</td>
-                            <td class="zw-muted d-none d-md-table-cell">Every @FormatMinutes(item.ExpectedFrequencyMinutes) &middot; @FormatMinutes(item.GracePeriodMinutes) grace</td>
-                            <td class="zw-muted d-none d-md-table-cell" data-role="last-seen">@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                            <td class="zw-muted">@item.ExpectedFrequencyMinutes min</td>
+                            <td class="zw-muted">@item.GracePeriodMinutes min</td>
+                            <td class="zw-muted" data-role="last-seen">@(item.LastSeenAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
                             <td>
                                 @{
                                     var lastAlert = item.AlertEvents.FirstOrDefault();
@@ -109,20 +95,19 @@ else
                                 }
                                 else if (string.IsNullOrEmpty(lastAlert.Channel))
                                 {
-                                    <span class="zw-alert-fail" title="@lastAlert.FailureDetails">Send failed</span>
-                                }
-                                else if (!string.IsNullOrEmpty(lastAlert.FailureDetails))
-                                {
-                                    <span class="zw-text-ok">Sent: @lastAlert.Channel</span>
-                                    <span class="zw-alert-fail" title="@lastAlert.FailureDetails">&middot; partial failure</span>
+                                    <span class="zw-alert-fail">Send failed</span>
                                 }
                                 else
                                 {
-                                    <span class="zw-text-ok">Sent: @lastAlert.Channel</span>
+                                    <span style="color: var(--zw-ok);">Sent: @lastAlert.Channel</span>
+                                }
+                                @if (!string.IsNullOrEmpty(lastAlert?.FailureDetails))
+                                {
+                                    <br /><span class="zw-alert-fail small">@lastAlert.FailureDetails</span>
                                 }
                             </td>
                             <td>
-                                <span class="zw-ping-url" data-ping-url="@pingUrl" title="@pingUrl">
+                                <span class="zw-ping-url" data-ping-url="@pingUrl">
                                     <code>@pingUrl</code>
                                     <button type="button" class="zw-copy-btn" data-copy-target aria-label="Copy ping URL">Copy</button>
                                 </span>

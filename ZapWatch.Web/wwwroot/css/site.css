@@ -539,10 +539,6 @@ a:focus-visible, button:focus-visible {
   align-items: center;
   gap: 0.5rem;
   max-width: 100%;
-  /* Lets the flex item below actually shrink for ellipsis truncation - a bare max-width on
-     a flex child is ignored by default (min-width:auto), so without this the code element
-     never truncates no matter how narrow the container gets. */
-  min-width: 0;
 }
 
 .zw-ping-url code {
@@ -550,13 +546,6 @@ a:focus-visible, button:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--zw-text-2);
-  min-width: 0;
-}
-
-/* Scoped to the automations list specifically - the marketing "how it works" example URL
-   reuses .zw-ping-url too and is already short, so it shouldn't get capped like this. */
-.zw-automations-table .zw-ping-url {
-  max-width: 220px;
 }
 
 .zw-copy-btn {
@@ -737,11 +726,6 @@ a:focus-visible, button:focus-visible {
 
 .zw-alert-fail {
   color: var(--zw-overdue);
-  font-size: 0.8rem;
-}
-
-.zw-text-ok {
-  color: var(--zw-ok);
   font-size: 0.8rem;
 }
 

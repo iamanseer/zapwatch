@@ -90,23 +90,3 @@ None in v1 — revisit post-launch. Concrete candidates for later:
   grace-period/quiet-hours feature is more load-bearing than its size suggests.
 - Shopify/QuickBooks polling and WhatsApp are deferred specifically because each carries an
   external approval-process timeline outside build-time control.
-
-## 10. Pre-launch polish (scoped after the initial v1 build)
-Added once Module 1 and Module 2 were both done, ahead of real outreach — tracked as Module 3 in
-`MODULES.md`, not a change to the original v1 feature list above. All rows below are shipped
-unless noted; see `MODULES.md`'s Module 3 section for the full build write-up (added after the
-fact, from git history — this file and `MODULES.md` weren't actually kept in sync while Module 3
-was being built, despite several commit messages referencing this section).
-
-| Item | Why it's here | Source | Status |
-|---|---|---|---|
-| Brand-color fix | `--zw-lamp` is Zapier's exact trademarked orange; their own partner brand guidelines prohibit it, and the Solution Partner directory is the planned outreach channel | `RESTYLING-PLAN.md` | Done |
-| Landing page rebuild | Original wasn't evaluated against 2026 B2B SaaS conversion conventions until this review | `PRODUCT-VALIDATION.md` | Done |
-| Google sign-in + profile update | Lowers signup friction; doesn't fix the actual current bottleneck (outreach hasn't run yet) but is cheap enough not to defer | This review | Done |
-| Email verify / forgot password / change password | Missing auth basics for a paid product; an unverified email is a silent failure of the alert path itself | Anseer request | Done |
-| Microsoft + GitHub sign-in | Extends the already-shipped Google sign-in slice with two more providers freelancers/agencies commonly use (Microsoft/Office 365, GitHub) | Anseer request, 2026-08-02 | Done (code); needs Anseer to register OAuth app credentials for both before real sign-in works — see `MODULES.md` Module 3 follow-up slice 1 |
-| Automation & billing view design pass | Explicit check that existing views actually use the current `DESIGN.md` component system, beyond the automated color-token swap | Anseer request | **Done** — billing half shipped with Module 3; automations-list half (readability: cramped columns, unconstrained ping-URL cell, inline color style, raw-minute durations) shipped 2026-08-03 as `MODULES.md` Module 3 follow-up slice 2 |
-| Billing page active-subscription state | Billing page doesn't currently show a subscriber's own plan clearly | Anseer request | Done |
-| Privacy Policy page | Real content, not boilerplate — starter draft, not legal advice | Anseer request | Done |
-| About Us page | Extends the honest founder-note voice already used on the landing page | Anseer request | Done |
-| SEO baseline | Compounding channel, cheap to get right before the site has traffic/history; explicitly not expected to produce the first paying customer | `SEO-PLAN.md` | Mostly done — meta tags/OG/JSON-LD/robots.txt/sitemap.xml shipped; `SEO-PLAN.md` §5 (Search Console/Bing verification) and §6 (first long-tail content piece) still open, both need Anseer action rather than more code |

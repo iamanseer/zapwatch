@@ -73,10 +73,6 @@ jobs:
           RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
-          MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
-          OAUTH_GITHUB_CLIENT_ID: ${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
-          OAUTH_GITHUB_CLIENT_SECRET: ${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
         run: |
           $path = "./publish/appsettings.json"
           $json = Get-Content $path -Raw | ConvertFrom-Json
@@ -90,10 +86,6 @@ jobs:
           if ($env:RAZORPAY_WEBHOOK_SECRET) { $json.Razorpay.WebhookSecret = $env:RAZORPAY_WEBHOOK_SECRET }
           if ($env:GOOGLE_CLIENT_ID) { $json.Authentication.Google.ClientId = $env:GOOGLE_CLIENT_ID }
           if ($env:GOOGLE_CLIENT_SECRET) { $json.Authentication.Google.ClientSecret = $env:GOOGLE_CLIENT_SECRET }
-          if ($env:MICROSOFT_CLIENT_ID) { $json.Authentication.Microsoft.ClientId = $env:MICROSOFT_CLIENT_ID }
-          if ($env:MICROSOFT_CLIENT_SECRET) { $json.Authentication.Microsoft.ClientSecret = $env:MICROSOFT_CLIENT_SECRET }
-          if ($env:OAUTH_GITHUB_CLIENT_ID) { $json.Authentication.GitHub.ClientId = $env:OAUTH_GITHUB_CLIENT_ID }
-          if ($env:OAUTH_GITHUB_CLIENT_SECRET) { $json.Authentication.GitHub.ClientSecret = $env:OAUTH_GITHUB_CLIENT_SECRET }
           $json | ConvertTo-Json -Depth 10 | Set-Content $path
 
       - name: Deploy via MSDeploy

@@ -189,6 +189,33 @@ Subscription reuses it too.
 - **Effort estimate** — ~1 evening-block.
 - **Build order priority** — Done.
 
+### Follow-up slice 3 — Fix profile/change-password validation bugs — ✅ Done
+Reported 2026-08-03: saving just a phone number on the account settings page always failed with
+"The Email field is required," and the same error (plus other leaked errors like "Current password
+is required") appeared in both the profile section and the change-password section regardless of
+which form was actually submitted.
+
+Root causes, both in code that predates this slice (Module 3's auth completeness work):
+1. `ProfileViewModel.Email` is a non-nullable reference type with no explicit `[Required]` — ASP.NET
+   Core's implicit-required check for non-nullable reference types treated it as required anyway.
+   The Profile page's Email `<input>` is always `disabled` (it's never actually editable), so it
+   never submits, binding `Email` to null on every Profile POST. `AccountController.Profile(POST)`
+   reassigns `model.Email = user.Email!` to fix this up, but that happens *after* model validation
+   already ran and recorded the error — reassigning the model property can't undo it. Fixed with
+   `[ValidateNever]` on the property, since it was never meant to be user input at all.
+2. `Profile.cshtml` and `_ChangePasswordForm.cshtml` are two independent forms rendered on the same
+   page, both using `asp-validation-summary="All"` — which shows every field-level ModelState error
+   regardless of which form's action actually produced it, so any failed submission on either form
+   showed its errors in *both* summary boxes. Fixed by switching both to `ValidationSummary.ModelOnly`
+   — each field already has its own `asp-validation-for` span for inline display, so this only
+   removes the duplicate/misattributed copy from the wrong section's summary, without losing any
+   error visibility.
+- Covered by `ZapWatch.Tests/ProfileViewModelValidationTests.cs` — reproduces the exact ASP.NET Core
+  validation behavior (confirmed failing without the `[ValidateNever]` fix, passing with it) and
+  confirms `PhoneNumber`'s own `[Required]` still works correctly.
+- **Effort estimate** — ~0.5 evening-block.
+- **Build order priority** — Done.
+
 ## Module dependency map
 `M1 (Core Monitoring Engine) → M2 (Monetization & Launch) → M3 (Pre-Launch Polish)`
 

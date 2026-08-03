@@ -2,13 +2,6 @@
 
 v1 splits into three modules — see effort estimates below.
 
-> **Merge-order note**: this section is also being added by PR #15 (`worktree-social-signin-
-> microsoft-github`, adding Microsoft + GitHub sign-in). Both PRs branched from the same
-> pre-Module-3-doc-backfill `origin/main` independently, so whichever merges second will hit a
-> trivial conflict here — the two versions are compatible (this one additionally marks the
-> automations-list follow-up slice below as Done). Resolve by keeping both PRs' code changes and
-> taking this file's "Done" status for that slice.
-
 ## Module 1: Core Monitoring Engine — ✅ Done
 Built, tested, and deployed to production (`zap-watch.runasp.net`). All 6 slices shipped; see
 git history on `main` for the slice-by-slice commits.

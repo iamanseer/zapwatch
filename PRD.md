@@ -98,10 +98,6 @@ unless noted; see `MODULES.md`'s Module 3 section for the full build write-up (a
 fact, from git history — this file and `MODULES.md` weren't actually kept in sync while Module 3
 was being built, despite several commit messages referencing this section).
 
-> **Merge-order note**: also added independently by PR #15 — see the equivalent note at the top
-> of `MODULES.md`. Trivial conflict expected; take this file's "Done" status for the automations
-> half of the design-pass row below.
-
 | Item | Why it's here | Source | Status |
 |---|---|---|---|
 | Brand-color fix | `--zw-lamp` is Zapier's exact trademarked orange; their own partner brand guidelines prohibit it, and the Solution Partner directory is the planned outreach channel | `RESTYLING-PLAN.md` | Done |
